@@ -13,6 +13,15 @@ In The Evergreen State College computer science
 * Paul Swisher
 * Paul Pham
 
+Spring Quarter Team Members
+* Paul Pham
+* Dominic Severe
+* Gavin Bowers
+* Dee Dee
+* Ellie
+* Kassidy
+* Taylor
+
 ## Goals and Our Circle of Competence
 This project is a proof-of-concept that has two main goals:
 * provide easy-to-use, general-purpose sequencing software to the biology research community
