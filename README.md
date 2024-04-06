@@ -19,7 +19,7 @@ Spring Quarter Team Members
 * Gavin Bowers
 * Dee Dee
 * Ellie
-* Kassidy
+* Cassidy Wilson
 * Taylor
 
 ## Goals and Our Circle of Competence
