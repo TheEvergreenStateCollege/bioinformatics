@@ -21,6 +21,7 @@ Spring Quarter Team Members
 * Ellie
 * Cassidy Wilson
 * Taylor
+* Rain
 
 ## Goals and Our Circle of Competence
 This project is a proof-of-concept that has two main goals:
