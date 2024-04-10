@@ -1,5 +1,16 @@
+#![allow(unused)]
+
 fn main() {
     println!("Hello, world!");
+}
+
+enum LinkResult {
+    /// There should be a link to the first from the second node
+    To(i32),
+    /// There should be a link from the first to the second node
+    From(i32),
+    /// There should be no link between the two nodes
+    NoLink,
 }
 
 struct Graph<T> {
@@ -15,25 +26,22 @@ impl<T> Graph<T> {
         }
     }
 
-    pub fn add_node(&mut self, value: T) {
-        // TODO: Should this add another row and column to the matrix?
+    pub fn add_node(&mut self, value: T, link_checker: fn(&T, &T) -> LinkResult) {
         self.nodes.push(value);
-    }
+        let new_node_index = self.nodes.len() - 1;
 
-    // TODO: We should probably add edges based on node values, not indexes.
-    pub fn add_edge(&mut self, from: usize, to: usize, weight: i32) {
-        // Make sure the specified nodes indexes actually exist
-        if self.nodes.get(from).is_none() || self.nodes.get(to).is_none() {
-            // TODO: Return Err
-            panic!("Nodes don't exist");
+        // If the adjacency matrix is too small, increase the size by 1000 cells
+        if self.nodes.len() > self.adjacency_matrix.len() {
+            self.adjacency_matrix
+                .resize(self.nodes.len() + 100, vec![0; self.nodes.len() + 100]);
         }
 
-        if from == to {
-            // TODO: Return Err
-            panic!("Same node");
+        for (index, node) in self.nodes.iter().enumerate() {
+            match link_checker(&value, node) {
+                LinkResult::To(weight) => self.adjacency_matrix[index][new_node_index] = weight,
+                LinkResult::From(weight) => self.adjacency_matrix[new_node_index][index] = weight,
+                LinkResult::NoLink => (),
+            }
         }
-
-        // TODO: Use .get() so it doesn't panic
-        self.adjacency_matrix[from][to] = weight;
     }
 }
