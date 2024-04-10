@@ -20,7 +20,7 @@ Spring Quarter Team Members
 * Dee Dee
 * Ellie
 * Cassidy Wilson
-* Taylor
+* Taylor Wolff
 * Rain
 
 ## Goals and Our Circle of Competence
