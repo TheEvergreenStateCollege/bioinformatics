@@ -13,12 +13,18 @@ enum LinkResult {
     NoLink,
 }
 
-struct Graph<T> {
+struct Graph<T>
+where
+    T: Clone,
+{
     nodes: Vec<T>,
     adjacency_matrix: Vec<Vec<i32>>,
 }
 
-impl<T> Graph<T> {
+impl<T> Graph<T>
+where
+    T: Clone,
+{
     pub fn new(initial_size: usize) -> Self {
         Self {
             nodes: Vec::new(),
@@ -27,7 +33,7 @@ impl<T> Graph<T> {
     }
 
     pub fn add_node(&mut self, value: T, link_checker: fn(&T, &T) -> LinkResult) {
-        self.nodes.push(value);
+        self.nodes.push(value.clone());
         let new_node_index = self.nodes.len() - 1;
 
         // If the adjacency matrix is too small, increase the size by 1000 cells
