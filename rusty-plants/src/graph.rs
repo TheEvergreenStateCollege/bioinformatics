@@ -42,6 +42,7 @@ where
                 .resize(self.nodes.len() + 100, vec![0; self.nodes.len() + 100]);
         }
 
+        // TODO: We don't want to link to the new node by accident
         for (index, node) in self.nodes.iter().enumerate() {
             match link_checker(&value, node) {
                 LinkResult::To(weight) => self.adjacency_matrix[index][new_node_index] = weight,
