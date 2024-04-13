@@ -1,0 +1,1 @@
+I didn't do much this week since I first learned about the project on Friday. I spent some time researching algorithms for gene sequencing with a youtube series.
