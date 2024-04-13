@@ -1,6 +1,8 @@
-use std::io::{stdin,BufRead};
+mod graph;
+
 use regex_lite::Regex;
 use std::env;
+use std::io::{stdin, BufRead};
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -12,6 +14,6 @@ fn main() {
     let lines = contents.lines();
 
     for line in lines {
-        println!("{:?}",line);
+        println!("{:?}", line);
     }
 }
