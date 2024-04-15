@@ -6,41 +6,44 @@ use std::io::{Error, ErrorKind};
 
 #[allow(dead_code)]
 #[derive(Debug)]
+// Same as a read. I chose to use this name because Read is taken by io::Read
 pub struct Fragment<'a> {
-    //Same as a read. I chose to use this name because Read is taken by io::Read
-    hash: &'a str, //I don't actually know what this part is, so this is a guess
+    uid: &'a str, // I don't actually know what this part is, so this is a guess
     runid: &'a str,
     sampleid: &'a str,
     read_number: &'a str,
     ch: &'a str,
     start_time: &'a str,
     model_version_id: &'a str,
-    pub bases: &'a str,
+    bases: &'a str,
 }
 
-pub fn read_file(path: &str) -> Result<String, io::Error> {
-    read_to_string(path)
+impl Fragment<'_> {
+    pub fn bases(&self) -> &str {
+        self.bases
+    }
 }
 
-pub fn read_directory(path: &str) -> Result<String, io::Error> {
-    let dir_paths = read_dir(path)?;
-    let mut all_contents: String = String::new();
+/// Adds the contents of every file in the given directory to a string, and returns it.
+pub fn read_directory_to_string(path: &str) -> Result<String, io::Error> {
+    let mut all_contents = String::new();
 
-    for dir_path in dir_paths {
-        let contents = read_file(dir_path.unwrap().path().to_str().unwrap())?;
+    for dir_path in read_dir(path)? {
+        let contents = read_to_string(dir_path?.path().to_str().unwrap())?;
         all_contents.push_str(&contents);
     }
+
     Ok(all_contents)
 }
 
 pub fn parse_file(contents: &str) -> Result<Vec<Fragment>, io::Error> {
     let mut fragments: Vec<Fragment> = Vec::new();
 
-    for read in contents.split('>') {
+    for read in contents.split('>').skip(1) {
         //Each read in prefaced with a carrot
-        if read.is_empty() {
-            continue;
-        } //This skips the empty slice which is at the start
+        // if read.is_empty() {
+        //     continue;
+        // } //This skips the empty slice which is at the start
 
         let lines: Vec<&str> = read.split('\n').collect(); //This makes three slices: the first line (metadata), the second (bases), and an empty slice
         if lines.len() < 2 {
@@ -53,7 +56,7 @@ pub fn parse_file(contents: &str) -> Result<Vec<Fragment>, io::Error> {
         }
 
         fragments.push(Fragment {
-            hash: tokens[0],
+            uid: tokens[0],
             runid: tokens[1].split('=').nth(1).unwrap_or("failed_to_parse"),
             sampleid: tokens[2].split('=').nth(1).unwrap_or("failed_to_parse"),
             read_number: tokens[3].split('=').nth(1).unwrap_or("failed_to_parse"),
