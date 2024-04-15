@@ -6,6 +6,6 @@ fn main() {
     let fragments = import::parse_file(&files).expect("failed to parse fragments");
     //println!("{:?}", fragments[0]);
 
-    histogram(&fragments, 10, 150);
+    histogram(&fragments, 100, 100);
 
 }

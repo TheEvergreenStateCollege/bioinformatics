@@ -41,10 +41,10 @@ pub mod import {
             if read.is_empty() { continue } //This skips the empty slice which is at the start
 
             let lines: Vec<&str> = read.split('\n').collect(); //This makes three slices: the first line (metadata), the second (bases), and an empty slice
-            if lines.len() < 2 { return Err(Error::new(ErrorKind::InvalidData, "Failed to parse FASTA file - invalid lines")); }
+            if lines.len() < 2 { return Err(Error::new(ErrorKind::InvalidData, "invalid lines")); }
 
             let tokens: Vec<&str> = lines[0].split(' ').collect();
-            if tokens.len() != 7 { return Err(Error::new(ErrorKind::InvalidData, "Failed to parse FASTA file - invalid tokens")); }
+            if tokens.len() != 7 { return Err(Error::new(ErrorKind::InvalidData, "invalid tokens")); }
 
             fragments.push(Fragment {
                 hash: tokens[0],
