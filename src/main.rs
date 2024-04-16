@@ -4,6 +4,7 @@ use std::fs::read_to_string;
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
+    if args.len() < 2 {panic!("pants shidded - usage is fragments_dir genome_path");}
 
     let files = read_to_string(&args[1]).expect("failed to read fragment files");
     let fragments = parse_file(&files).expect("failed to parse fragments");
