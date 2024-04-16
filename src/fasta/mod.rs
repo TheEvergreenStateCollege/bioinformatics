@@ -39,15 +39,16 @@ pub fn read_directory_to_string(path: &str) -> Result<String, io::Error> {
 pub fn parse_file(contents: &str) -> Result<Vec<Fragment>, io::Error> {
     let mut fragments: Vec<Fragment> = Vec::new();
 
+    // Each read in prefaced with a carrot
+    // This skips the empty slice which is at the start
     for read in contents.split('>').skip(1) {
-        //Each read in prefaced with a carrot
-        // if read.is_empty() {
-        //     continue;
-        // } //This skips the empty slice which is at the start
-
-        let lines: Vec<&str> = read.split('\n').collect(); //This makes three slices: the first line (metadata), the second (bases), and an empty slice
+        // This makes three slices: the first line (metadata), the second (bases), and an empty slice
+        let lines: Vec<&str> = read.split('\n').collect();
         if lines.len() < 2 {
-            return Err(Error::new(ErrorKind::InvalidData, "invalid lines"));
+            return Err(Error::new(
+                ErrorKind::InvalidData,
+                "Invalid data. Not enough lines",
+            ));
         }
 
         let tokens: Vec<&str> = lines[0].split(' ').collect();
@@ -57,12 +58,12 @@ pub fn parse_file(contents: &str) -> Result<Vec<Fragment>, io::Error> {
 
         fragments.push(Fragment {
             uid: tokens[0],
-            runid: tokens[1].split('=').nth(1).unwrap_or("failed_to_parse"),
-            sampleid: tokens[2].split('=').nth(1).unwrap_or("failed_to_parse"),
-            read_number: tokens[3].split('=').nth(1).unwrap_or("failed_to_parse"),
-            ch: tokens[4].split('=').nth(1).unwrap_or("failed_to_parse"),
-            start_time: tokens[5].split('=').nth(1).unwrap_or("failed_to_parse"),
-            model_version_id: tokens[6].split('=').nth(1).unwrap_or("failed_to_parse"),
+            runid: tokens[1].split('=').nth(1).expect("Failed_to_parse"),
+            sampleid: tokens[2].split('=').nth(1).expect("Failed_to_parse"),
+            read_number: tokens[3].split('=').nth(1).expect("Failed_to_parse"),
+            ch: tokens[4].split('=').nth(1).expect("Failed_to_parse"),
+            start_time: tokens[5].split('=').nth(1).expect("Failed_to_parse"),
+            model_version_id: tokens[6].split('=').nth(1).expect("Failed_to_parse"),
             bases: lines[1],
         });
     }
