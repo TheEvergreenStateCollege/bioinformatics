@@ -1,4 +1,5 @@
 pub mod analyze;
+pub mod align;
 
 use std::fs::{read_dir, read_to_string};
 use std::io::{self};
@@ -73,3 +74,8 @@ pub fn parse_file(contents: &str) -> Result<Vec<Fragment>, io::Error> {
 //example lines
 //>4c6bc618-e920-44b4-92ab-642f2d535cf0 runid=9d742d72b6f5d334c2d0d388f2eb1da13decd9a6 sampleid=Plant_Memory_RNA_1 read=55292 ch=490 start_time=2023-05-19T10:33:23Z model_version_id=2020-09-07_rna_r9.4.1_minion_256_8f8fc47b
 //GCUAUGAUGUCUAAAGUUUACGCUAGAUCCGUACGACUCCGUGGUAACCCAACCGUCGAAGUCGAAUUAACUACCGAAAAGGGUGUUUCAGAUCCAUUGUUCCAUCUGGUGCCUCACACCGGUGUCCACGAAGCUUUGGAAAUGAGAGAUGAAGACAAAUCCAAGUGGAUGGGUAAGGGUGUUAUGAACGCUGCUCAACAACGUCAACAACGUCAUUAUUG
+
+pub fn parse_genome(fna: String) -> String {
+    fna.split('\n').skip(1).collect::<String>().to_uppercase()
+    //The case actually encodes useful information but I am deleting it for now
+}
