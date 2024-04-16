@@ -76,6 +76,8 @@ pub fn parse_file(contents: &str) -> Result<Vec<Fragment>, io::Error> {
 //GCUAUGAUGUCUAAAGUUUACGCUAGAUCCGUACGACUCCGUGGUAACCCAACCGUCGAAGUCGAAUUAACUACCGAAAAGGGUGUUUCAGAUCCAUUGUUCCAUCUGGUGCCUCACACCGGUGUCCACGAAGCUUUGGAAAUGAGAGAUGAAGACAAAUCCAAGUGGAUGGGUAAGGGUGUUAUGAACGCUGCUCAACAACGUCAACAACGUCAUUAUUG
 
 pub fn parse_genome(fna: String) -> String {
-    fna.split('\n').skip(1).collect::<String>().to_uppercase()
+    let genome: String = fna.split('\n').skip(1).collect::<String>().to_uppercase();
     //The case actually encodes useful information but I am deleting it for now
+    println!("Genome imported");
+    genome
 }
