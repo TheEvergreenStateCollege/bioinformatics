@@ -1,4 +1,4 @@
-use super::Fragment;
+use crate::file_io::fasta::Fragment;
 
 pub fn naive(genome: String, fragments: Vec<Fragment>) -> Vec<usize> {
 

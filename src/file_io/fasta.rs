@@ -1,6 +1,3 @@
-pub mod analyze;
-pub mod align;
-
 use std::fs::{read_dir, read_to_string};
 use std::io::{self};
 use std::io::{Error, ErrorKind};
