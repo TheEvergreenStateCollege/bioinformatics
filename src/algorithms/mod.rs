@@ -1,2 +1,2 @@
-pub mod align;
+pub mod naive_align;
 pub mod analyze;
