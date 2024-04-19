@@ -1,3 +1,3 @@
-pub mod fasta;
-pub mod suffix;
-pub mod tree;
+pub mod file_io;
+pub mod data_structures;
+pub mod algorithms;

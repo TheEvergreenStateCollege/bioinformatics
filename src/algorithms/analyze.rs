@@ -1,11 +1,11 @@
-use super::Fragment;
+use crate::file_io::fasta::Fragment;
 use std::fmt::Write;
 
 pub fn histogram(fragments: &Vec<Fragment>, bin_size: usize, max_width: usize) {
     let mut bins: Vec<usize> = Vec::new();
 
     for fragment in fragments {
-        let bin_index: usize = fragment.bases.len() / bin_size;
+        let bin_index: usize = fragment.bases().len() / bin_size;
         while bin_index >= bins.len() {
             bins.push(0);
         }
