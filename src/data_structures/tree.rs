@@ -1,19 +1,21 @@
 #![allow(dead_code)]
 
-struct Leaf<'a, T> {
+use std::rc::Rc;
+
+struct Leaf<T> {
     value: Option<T>,
-    left: Option<&'a Leaf<'a, T>>,
-    right: Option<&'a Leaf<'a, T>>,
+    left: Option<Rc<Leaf<T>>>,
+    right: Option<Rc<Leaf<T>>>,
 }
 
-struct Tree<'a, T> {
-    root: &'a Leaf<'a, T>,
+struct Tree<T> {
+    root: Leaf<T>,
 }
 
-impl<T> Tree<'_, T> {
+impl<T> Tree<T> {
     pub fn new() -> Self {
         Self {
-            root: &Leaf {
+            root: Leaf {
                 value: None,
                 left: None,
                 right: None,
