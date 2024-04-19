@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2024-04-19T18:01:36.920Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:124.0) Gecko/20100101 Firefox/124.0" etag="isZBfc2sWoN-ayN8oaT9" version="24.2.7" type="github">
+<mxfile host="app.diagrams.net" modified="2024-04-19T18:07:14.064Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:124.0) Gecko/20100101 Firefox/124.0" etag="0Kr7mftPZj5y95CPgvrW" version="24.2.7" type="github">
   <diagram name="Page-1" id="OqXhd6lRRRtc-QcUAtUc">
     <mxGraphModel dx="1428" dy="774" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="0" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
@@ -408,16 +408,31 @@
           <mxGeometry x="1000" y="860" width="255" height="30" as="geometry" />
         </mxCell>
         <mxCell id="ux835cZKwpN4uKg9u5wD-131" value="Dom" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
-          <mxGeometry x="1220" y="120" width="60" height="30" as="geometry" />
+          <mxGeometry x="690" y="275" width="60" height="30" as="geometry" />
         </mxCell>
         <mxCell id="ux835cZKwpN4uKg9u5wD-132" value="Gavin" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
-          <mxGeometry x="1347.5" y="155" width="60" height="30" as="geometry" />
+          <mxGeometry x="1420" y="60" width="60" height="30" as="geometry" />
         </mxCell>
         <mxCell id="ux835cZKwpN4uKg9u5wD-133" value="Taylor" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
-          <mxGeometry x="1320" y="70" width="60" height="30" as="geometry" />
+          <mxGeometry x="690" y="245" width="60" height="30" as="geometry" />
         </mxCell>
         <mxCell id="ux835cZKwpN4uKg9u5wD-134" value="Cassidy" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
-          <mxGeometry x="1430" y="70" width="60" height="30" as="geometry" />
+          <mxGeometry x="690" y="305" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ux835cZKwpN4uKg9u5wD-135" value="Dee Dee" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="170" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ux835cZKwpN4uKg9u5wD-136" value="Rain" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="1190" y="60" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ux835cZKwpN4uKg9u5wD-137" value="Paul" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="820" y="510" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ux835cZKwpN4uKg9u5wD-138" value="&lt;div&gt;Web&lt;/div&gt;&lt;div&gt;Engineering&lt;br&gt;&lt;/div&gt;" style="whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="1400" y="105" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="ux835cZKwpN4uKg9u5wD-141" value="Gavin" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="220" y="270" width="60" height="30" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
