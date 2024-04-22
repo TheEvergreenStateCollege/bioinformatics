@@ -4,8 +4,7 @@ use std::rc::Rc;
 
 struct Leaf<T> {
     value: Option<T>,
-    left: Option<Rc<Leaf<T>>>,
-    right: Option<Rc<Leaf<T>>>,
+    leaves: Option<Vec<Rc<Leaf<T>>>>,
 }
 
 struct Tree<T> {
@@ -17,8 +16,7 @@ impl<T> Tree<T> {
         Self {
             root: Leaf {
                 value: None,
-                left: None,
-                right: None,
+                leaves: None,
             },
         }
     }
