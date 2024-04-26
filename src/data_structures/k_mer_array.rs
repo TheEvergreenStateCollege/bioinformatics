@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use rayon::prelude::*;
 
 pub struct KMerArray<'a> {
     map: HashMap<&'a str, Vec<usize>>,
