@@ -91,7 +91,7 @@ impl SuffixTree{
         }
         
     }
-    fn append_string(mut self, s: &str){ 
+    fn append_string(mut self, s: &str) { 
     //I have no idea if this is right the linter just corrected my code 5 times into this
         self.string.push_str(s);
     }
