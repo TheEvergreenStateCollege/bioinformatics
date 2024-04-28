@@ -1,9 +1,10 @@
-use std::fs::{read_dir, read_to_string};
-use std::io::{self};
-use std::io::{Error, ErrorKind};
+use directories::BaseDirs;
+use serde::{Deserialize, Serialize};
+use std::fs::{read_dir, read_to_string, File};
+use std::io::prelude::*;
 
 #[allow(dead_code)]
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 // Same as a read. I chose to use this name because Read is taken by io::Read
 pub struct Fragment<'a> {
     uid: &'a str, // I don't actually know what this part is, so this is a guess
@@ -20,10 +21,20 @@ impl Fragment<'_> {
     pub fn bases(&self) -> &str {
         self.bases
     }
+
+    pub fn serialize(&self, name: &str) {
+        let encoded = bincode::serialize(self).unwrap();
+
+        let base_dirs = BaseDirs::new().unwrap();
+        let mut file =
+            File::create(base_dirs.data_dir().join(format!("{}.bincode", name))).unwrap();
+
+        file.write_all(&encoded).unwrap();
+    }
 }
 
 /// Adds the contents of every file in the given directory to a string, and returns it.
-pub fn read_directory_to_string(path: &str) -> Result<String, io::Error> {
+pub fn read_directory_to_string(path: &str) -> Result<String, std::io::Error> {
     let mut all_contents = String::new();
 
     for dir_path in read_dir(path)? {
@@ -34,7 +45,7 @@ pub fn read_directory_to_string(path: &str) -> Result<String, io::Error> {
     Ok(all_contents)
 }
 
-pub fn parse_file(contents: &str) -> Result<Vec<Fragment>, io::Error> {
+pub fn parse_file(contents: &str) -> Result<Vec<Fragment>, std::io::Error> {
     let mut fragments: Vec<Fragment> = Vec::new();
 
     // Each read in prefaced with a carrot
@@ -43,15 +54,18 @@ pub fn parse_file(contents: &str) -> Result<Vec<Fragment>, io::Error> {
         // This makes three slices: the first line (metadata), the second (bases), and an empty slice
         let lines: Vec<&str> = read.split('\n').collect();
         if lines.len() < 2 {
-            return Err(Error::new(
-                ErrorKind::InvalidData,
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::InvalidData,
                 "Invalid data. Not enough lines",
             ));
         }
 
         let tokens: Vec<&str> = lines[0].split(' ').collect();
         if tokens.len() != 7 {
-            return Err(Error::new(ErrorKind::InvalidData, "invalid tokens"));
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::InvalidData,
+                "invalid tokens",
+            ));
         }
 
         fragments.push(Fragment {
