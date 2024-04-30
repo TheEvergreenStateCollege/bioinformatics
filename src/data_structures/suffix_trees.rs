@@ -1,7 +1,13 @@
+//thing to extancieate copy / clone?
+
+
+use std::cmp::min;
+
 struct Node {
-    start: Option<u32>,         // start of where this node exists in the string. 
-    length: u32,        // how many over. lets see if we can manip this in a smart way.
-    children: Vec<u32>, // lets try by indexing instead of ownership, for now.
+    start:    Option<u32>, // start of where this node exists in the string. 
+    end:      Option<u32>, // end point, none if not set. 
+    length:   u32,         // how many over. lets see if we can manip this in a smart way.
+    children: Vec<u32>,    // lets try by indexing instead of ownership, for now.
     
     // should start be a vector of all instances or just the first one? 
     // like, would that be useful to the biologists? 
@@ -11,12 +17,14 @@ impl Node{
     fn new() -> Self {
         Self {
             start: None, //because root isnt in the string. Technically.
+            end: None,
             length: 0,
             children: Vec::<u32>::new(), 
             //is there someway the size of children can be determiend 
             //by sharing the alphabet from the suffix tree? 
         }
     }
+    // data manip functions
     fn set_start(mut self, start: u32) -> Self {
         self.start =  Some(start);
         self
@@ -39,6 +47,18 @@ impl Node{
             }
         }
     }
+    //data retrive functions. 
+    fn get_length(mut self, position: &u32) -> Option<u32> {
+        match (self.end, self.start) {
+            (Some(start), None)  => {
+                Some((position + 1) - start)
+            },
+            (Some(start), Some(end)) => {
+                Some(min(end, position + 1) - start)
+            },
+            _ => None,
+        }
+    }
 }
 //make node trait and make root special for hash table. because that could be scary good. 
 
@@ -59,8 +79,8 @@ struct SuffixTree {
     need_sl: Option<u32>,      // Node that needs to be suffix linked, 
 
     // String tracking offset variables.
-    position: Option<u32>,      // How far we are into the string for construction. 
-    remainder: u32,     // How many characters from input need resolving yet.
+    position: Option<u32>, // How far we are into the string for construction. 
+    remainder: u32,        // How many characters from input need resolving yet.
 
     // Node Tracking offset variables.
     active_node: u32,   // What node were evaluating from
@@ -96,3 +116,15 @@ impl SuffixTree{
         self.string.push_str(s);
     }
 }
+
+//
+//new_node DONE
+//edge length pointer skerting. 
+//active edge? NO, thats lame... why????
+//add_SL (add suffix Link.)
+//
+//walk down
+//
+//suffix tree init, DONE?
+//
+//extend / add char, 
