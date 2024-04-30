@@ -13,7 +13,7 @@ enum LinkResult {
     NoLink,
 }
 
-struct Graph<T>
+pub struct Graph<T>
 where
     T: Clone,
 {
