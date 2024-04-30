@@ -79,7 +79,7 @@ struct SuffixTree {
     need_sl: Option<u32>,      // Node that needs to be suffix linked, 
 
     // String tracking offset variables.
-    position: Option<u32>, // How far we are into the string for construction. 
+    position: u32, // How far we are into the string for construction.
     remainder: u32,        // How many characters from input need resolving yet.
 
     // Node Tracking offset variables.
@@ -89,9 +89,9 @@ struct SuffixTree {
 
 }
 
-impl SuffixTree{
+impl SuffixTree {
     fn new() -> Self {
-        Self{
+        let mut new_self = Self {
             //make root I guess?
             string: String::new(),
             nodes: Vec::<Node>::new(),
@@ -101,21 +101,50 @@ impl SuffixTree{
             last_added: None,
             need_sl: None,
 
-            position : None,
+            position: 0,
             remainder: 0,
 
-            active_node:   0,
-            active_child:  0,
+            active_node: 0,
+            active_child: 0,
             active_length: 0,
+        };
+        new_self.nodes.push(Node::new());
+        return new_self;
 
-        }
-        
     }
-    fn append_string(mut self, s: &str) { 
-    //I have no idea if this is right the linter just corrected my code 5 times into this
+
+    fn append_string(mut self, s: &str) {
+        //I have no idea if this is right the linter just corrected my code 5 times into this
         self.string.push_str(s);
+        self.remainder += s.len() as u32;
+
     }
+
+    fn walk_down(mut self, node: u32) {
+        //if self.active_length
+    }
+
+    fn extend(mut self) {
+        self.need_sl = None;
+        while(self.remainder > 0){
+            if self.active_length = 0 {
+                self.active_child = self.position
+            }
+        }
+
+
+    }
+
+
+
+
+
+
+
+
 }
+
+
 
 //
 //new_node DONE
