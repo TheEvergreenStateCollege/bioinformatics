@@ -79,6 +79,8 @@ pub fn parse_file(contents: &str) -> Result<Vec<Fragment>, std::io::Error> {
             start_time: tokens[5].split('=').nth(1).expect("Failed_to_parse"),
             model_version_id: tokens[6].split('=').nth(1).expect("Failed_to_parse"),
             bases: lines[1],
+            //rev_bases: lines[1].chars().rev().collect()::String,
+            //inv_bases: lines[1].replace("A", "T") -- move elsewhere
         });
     }
     println!("Reads parsed");
