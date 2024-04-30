@@ -41,7 +41,9 @@ pub fn read_directory_to_string(path: &str) -> Result<String, std::io::Error> {
         let contents = read_to_string(dir_path?.path().to_str().unwrap())?;
         all_contents.push_str(&contents);
     }
-
+    //Uracil to Thymine conversion so the reads can be matched to DNA
+    let all_contents = all_contents.replace("U", "T");
+    println!("Reads imported from files");
     Ok(all_contents)
 }
 
@@ -79,6 +81,7 @@ pub fn parse_file(contents: &str) -> Result<Vec<Fragment>, std::io::Error> {
             bases: lines[1],
         });
     }
+    println!("Reads parsed");
     Ok(fragments)
 }
 
@@ -87,8 +90,7 @@ pub fn parse_file(contents: &str) -> Result<Vec<Fragment>, std::io::Error> {
 //GCUAUGAUGUCUAAAGUUUACGCUAGAUCCGUACGACUCCGUGGUAACCCAACCGUCGAAGUCGAAUUAACUACCGAAAAGGGUGUUUCAGAUCCAUUGUUCCAUCUGGUGCCUCACACCGGUGUCCACGAAGCUUUGGAAAUGAGAGAUGAAGACAAAUCCAAGUGGAUGGGUAAGGGUGUUAUGAACGCUGCUCAACAACGUCAACAACGUCAUUAUUG
 
 pub fn parse_genome(fna: String) -> String {
-    let genome: String = fna.split('\n').skip(1).collect::<String>().to_uppercase();
-    //The case actually encodes useful information but I am deleting it for now
-    println!("Genome imported");
+    let genome: String = fna.split('\n').skip(1).collect::<String>();
+    println!("Genome imported from file");
     genome
 }
