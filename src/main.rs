@@ -18,6 +18,8 @@ struct Cli {
 fn main() {
     let cli = Cli::parse();
 
+    human_panic::setup_panic!();
+
     let files =
         read_directory_to_string(&cli.fragments_dir).expect("failed to read fragment files");
     let fragments = parse_file(&files).expect("failed to parse fragments");
@@ -31,4 +33,3 @@ fn main() {
 
 // How to run:
 // cargo run --release  -- .\data\reads\ .\data\ref_genome.fna
-
