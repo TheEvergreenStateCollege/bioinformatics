@@ -1,7 +1,10 @@
 use directories::BaseDirs;
 use serde::{Deserialize, Serialize};
-use std::fs::{read_dir, read_to_string, File};
-use std::io::prelude::*;
+use std::{
+    fs::{read_dir, read_to_string, File},
+    io::prelude::*,
+    path::Path,
+};
 
 #[allow(dead_code)]
 #[derive(Debug, Serialize, Deserialize)]
@@ -34,7 +37,7 @@ impl Fragment<'_> {
 }
 
 /// Adds the contents of every file in the given directory to a string, and returns it.
-pub fn read_directory_to_string(path: &str) -> Result<String, std::io::Error> {
+pub fn read_directory_to_string(path: &Path) -> Result<String, std::io::Error> {
     let mut all_contents = String::new();
 
     for dir_path in read_dir(path)? {
@@ -42,7 +45,7 @@ pub fn read_directory_to_string(path: &str) -> Result<String, std::io::Error> {
         all_contents.push_str(&contents);
     }
     //Uracil to Thymine conversion so the reads can be matched to DNA
-    let all_contents = all_contents.replace("U", "T");
+    let all_contents = all_contents.replace('U', "T");
     println!("Reads imported from files");
     Ok(all_contents)
 }
