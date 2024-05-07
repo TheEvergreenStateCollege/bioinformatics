@@ -161,6 +161,7 @@ impl SuffixTree {
                     // Change the value of the edge to the index of the new node,
                     // Which is len() because the new node is at the end
                     self.nodes[self.active_node].children[edge] = self.nodes.len();
+                    self.add_suffix_link(self.active_node);
                 }
             }  else {
                 
