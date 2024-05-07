@@ -5,13 +5,13 @@ const ALPHABET_SIZE: u32 = 4;
 
 struct Node {
     start: Option<usize>, // start of where this node exists in the string.
-    end: Option<usize>, // end point, none if not set.
+    end: Option<usize>,   // end point, none if not set.
     suffix_link: Option<usize>,
-    length: usize,        // how many over. lets see if we can manip this in a smart way.
+    length: usize, // how many over. lets see if we can manip this in a smart way.
     children: Vec<usize>, // lets try by indexing instead of ownership, for now.
 
-                          // should start be a vector of all instances or just the first one?
-                          // like, would that be useful to the biologists?
+                   // should start be a vector of all instances or just the first one?
+                   // like, would that be useful to the biologists?
 }
 
 impl Node {
@@ -89,7 +89,7 @@ struct SuffixTree {
     /// What node were evaluating from
     active_node: usize,
     /// What edge were working in.
-    active_edge: Option<usize>,
+    active_edge: usize,
     /// How many into that edge/node (unsure)
     active_length: usize,
 }
@@ -110,7 +110,7 @@ impl SuffixTree {
             remainder: 0,
 
             active_node: 0,
-            active_edge: None,
+            active_edge: 0,
             active_length: 0,
         }
     }
@@ -122,18 +122,19 @@ impl SuffixTree {
     }
 
     fn add_suffix_link(&mut self, node: usize) {
-        if let Some(sl) = self.need_sl  { self.nodes[sl].suffix_link = Some(node);}
+        if let Some(sl) = self.need_sl {
+            self.nodes[sl].suffix_link = Some(node);
+        }
         self.need_sl = Some(node);
     }
 
     fn walk_down(&mut self, node: usize) -> bool {
         if let Some(length) = self.nodes[node].get_length(&self.position) {
             if self.active_length >= length {
-                match self.active_edge.as_mut() {
-                    // as active edge might not be set
-                    Some(ae) => *ae += length,
-                    _ => return false, // if not were probably at root. so were not walking down.
+                if self.active_edge == 0 {
+                    return false; // if not were probably at root. so were not walking down.
                 }
+                self.active_edge += length;
                 self.active_length -= length;
                 self.active_node = node;
                 return true;
@@ -150,21 +151,18 @@ impl SuffixTree {
 
         while self.remainder > 0 {
             if self.active_length == 0 {
-                self.active_edge = Some(self.position);
+                self.active_edge = self.position;
             }
-            // If there isn't an edge we add a
-            if let Some(edge) = self.active_edge {
-                if self.nodes[self.active_node].children[edge] == 0 {
-                    let mut leaf = Node::new(self.size);
-                    leaf.set_start(self.position);
-                    self.nodes.push(leaf);
-                    // Change the value of the edge to the index of the new node,
-                    // Which is len() because the new node is at the end
-                    self.nodes[self.active_node].children[edge] = self.nodes.len();
-                    self.add_suffix_link(self.active_node);
-                }
-            }  else {
-                
+            if self.nodes[self.active_node].children[self.active_edge] == 0 {
+                let mut leaf = Node::new(self.size);
+                leaf.set_start(self.position);
+                self.nodes.push(leaf);
+                // Change the value of the edge to the index of the new node,
+                // Which is len() because the new node is at the end
+                self.nodes[self.active_node].children[self.active_edge] = self.nodes.len();
+                self.add_suffix_link(self.active_node);
+            } else {
+                let next = self.nodes[self.active_node].children[self.active_edge];
             }
         }
     }
@@ -181,3 +179,11 @@ impl SuffixTree {
 //suffix tree init, DONE?
 //
 //extend / add char,
+
+#[cfg(tests)]
+mod tests {
+    #[test]
+    fn make_tree() {
+        let tree = SuffixTree::new(4);
+    }
+}
