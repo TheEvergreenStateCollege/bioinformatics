@@ -1,11 +1,18 @@
 #![allow(dead_code, unused_variables)]
-//thing to extancieate copy / clone?
+enum End {
+    Root,
+    Infinity,
+    Index(usize),
+}
 
-const ALPHABET_SIZE: u32 = 4;
+enum Start {
+    Root,
+    Index(usize),
+}
 
 struct Node {
-    start: Option<usize>, // start of where this node exists in the string.
-    end: Option<usize>,   // end point, none if not set.
+    start: Start, // start of where this node exists in the string.
+    end: End,     // end point of the node in the string
     suffix_link: Option<usize>,
     length: usize, // how many over. lets see if we can manip this in a smart way.
     children: Vec<usize>, // lets try by indexing instead of ownership, for now.
@@ -15,10 +22,10 @@ struct Node {
 }
 
 impl Node {
-    fn new(size: usize) -> Self {
+    fn new(size: usize, start: Start, end: End) -> Self {
         Self {
-            start: None, //because root isnt in the string. Technically.
-            end: None,
+            start,
+            end,
             suffix_link: None,
             length: 0,
             children: vec![0; size],
@@ -26,9 +33,10 @@ impl Node {
             //by sharing the alphabet from the suffix tree?
         }
     }
+
     // data manip functions
     fn set_start(&mut self, start: usize) {
-        self.start = Some(start);
+        self.start = Start::Index(start);
     }
     fn set_length(&mut self, length: usize) {
         self.length = length;
@@ -45,17 +53,21 @@ impl Node {
             }
         }
     }
-    //data retrive functions.
-    fn get_length(&mut self, position: &usize) -> Option<usize> {
-        match (self.end, self.start) {
-            (Some(start), None) => {
-                Some((position + 1) - start) //plus one needed?
-            }
-            (Some(start), Some(end)) => {
-                Some(end - start) //does plus one need exist?
-            }
-            _ => None,
-        }
+
+    // I changed it to be in-line with the original function -
+    // it will return 0 if you call it on the root
+    fn get_length(&mut self, position: &usize) -> usize {
+        // I assume the original C code expects not to have this function called on the root
+        // Because it would return a negative number and that doesn't make sense
+        let upper_bound = if let End::Index(i) = self.end {
+            i
+        } else {
+            position + 1
+        };
+        if let Start::Index(lower_bound) = self.start {
+            return upper_bound - lower_bound;
+        };
+        return 0;
     }
 }
 //make node trait and make root special for hash table. because that could be scary good.
@@ -98,7 +110,7 @@ impl SuffixTree {
     fn new(size: usize) -> Self {
         Self {
             string: String::new(),
-            nodes: vec![Node::new(size)],
+            nodes: vec![Node::new(size, Start::Root, End::Root)],
 
             alphabet: String::new(),
             size,
@@ -106,7 +118,7 @@ impl SuffixTree {
             last_added: None,
             need_sl: None,
 
-            position: 0,
+            position: 0, //This is -1 in the original code - how do we handle the same case?
             remainder: 0,
 
             active_node: 0,
@@ -115,10 +127,18 @@ impl SuffixTree {
         }
     }
 
-    fn append_string(mut self, s: &str) {
-        //I have no idea if this is right the linter just corrected my code 5 times into this
+    fn char_index(&self, c: char) -> usize {
+        for (index, val) in self.alphabet.chars().enumerate() {
+            if val == c {
+                return index;
+            }
+        }
+        return 0;
+    }
+
+    fn append_string(&mut self, s: &str) {
         self.string.push_str(s);
-        self.remainder += s.len() as usize;
+        self.remainder += s.len();
     }
 
     fn add_suffix_link(&mut self, node: usize) {
@@ -129,21 +149,20 @@ impl SuffixTree {
     }
 
     fn walk_down(&mut self, node: usize) -> bool {
-        if let Some(length) = self.nodes[node].get_length(&self.position) {
-            if self.active_length >= length {
-                if self.active_edge == 0 {
-                    return false; // if not were probably at root. so were not walking down.
-                }
-                self.active_edge += length;
-                self.active_length -= length;
-                self.active_node = node;
-                return true;
+        let length = self.nodes[node].get_length(&self.position);
+        if self.active_length >= length {
+            if self.active_edge == 0 {
+                return false; // if not were probably at root. so were not walking down.
             }
+            self.active_edge += length;
+            self.active_length -= length;
+            self.active_node = node;
+            return true;
         }
         return false;
     }
 
-    fn extend(mut self) {
+    fn extend(&mut self) {
         self.need_sl = None;
         // Increment the remainder to account for the char waiting to be inserted
         self.remainder += 1;
@@ -153,9 +172,10 @@ impl SuffixTree {
             if self.active_length == 0 {
                 self.active_edge = self.position;
             }
+            // This is true if the edge that would contain the index of the child node corresponding to the
+            // char we are adding is 0, meaning no such node exists
             if self.nodes[self.active_node].children[self.active_edge] == 0 {
-                let mut leaf = Node::new(self.size);
-                leaf.set_start(self.position);
+                let leaf = Node::new(self.size, Start::Index(self.position), End::Infinity);
                 self.nodes.push(leaf);
                 // Change the value of the edge to the index of the new node,
                 // Which is len() because the new node is at the end
@@ -163,22 +183,32 @@ impl SuffixTree {
                 self.add_suffix_link(self.active_node);
             } else {
                 let next = self.nodes[self.active_node].children[self.active_edge];
+                if self.walk_down(next) {
+                    continue;
+                }
+                // This should always be true, because next is a child of another node, and
+                // start would only be Root if it belongs to the root
+                if let Start::Index(start) = self.nodes[next].start {
+                    if self.string.chars().nth(start + self.active_length)
+                        == self.string.chars().nth(self.position)
+                    {
+                        self.active_length += 1;
+                        self.add_suffix_link(self.active_node);
+                        break;
+                    }
+                    let split = Node::new(
+                        self.size,
+                        Start::Index(start),
+                        End::Index(start + self.active_length),
+                    );
+                    self.nodes.push(split);
+                    let i = self.char_index(self.string.chars().nth(self.active_edge).unwrap());
+                    self.nodes[self.active_node].children[i] = self.nodes.len();
+                }
             }
         }
     }
 }
-
-//
-//new_node DONE
-//edge length pointer skerting.
-//active edge? NO, thats lame... why????
-//add_SL (add suffix Link.)
-//
-//walk down
-//
-//suffix tree init, DONE?
-//
-//extend / add char,
 
 #[cfg(tests)]
 mod tests {
