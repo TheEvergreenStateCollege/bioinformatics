@@ -1,17 +1,3 @@
-
-Skip to content
-All gists
-Back to GitHub
-@makagonov
-makagonov/ST.cpp Secret
-Created October 10, 2016 16:14 • Report abuse
-
-Code
-Revisions 1
-Stars 20
-Forks 5
-Clone this repository at &lt;script src=&quot;https://gist.github.com/makagonov/f7ed8ce729da72621b321f0ab547debb.js&quot;&gt;&lt;/script&gt;
-ST.cpp
 /**
  * Copyright (c) 2016 Sergey Makagonov
  *
@@ -149,22 +135,4 @@ int main() {
     //
     return 0;
 }
-@TheRiseOfDavid
-TheRiseOfDavid commented Nov 2, 2020
-
-thank a lot.It very nice for me.
-@AbyssalRemark
-Comment
-
-Leave a comment
-Footer
-© 2024 GitHub, Inc.
-Footer navigation
-
-    Terms
-    Privacy
-    Security
-    Status
-    Docs
-    Contact
 
