@@ -144,6 +144,12 @@ impl SuffixTree {
         return false;
     }
 
+    // Returns the same thing as text[i] in the original code, plus char_index to convert from
+    // thier use of char as an index to our alphabet based indexing
+    fn text(&self, index: usize) -> usize {
+        self.char_index(self.string.chars().nth(index).expect("char out of bounds"))
+    }
+
     //Original extend adds the char to the string, but ours assumes it has already been added
     fn extend(&mut self, c: char) {
         self.string.push(c);
@@ -156,14 +162,15 @@ impl SuffixTree {
                 self.active_edge = self.position;
             }
             // Children contains indicies into a vec containing all nodes. If the index is 0, it means that there is no such node
-            if self.nodes[self.active_node].children[self.active_edge] == 0 {
+            if self.nodes[self.active_node].children[self.text(self.active_edge)] == 0 {
                 let leaf = Node::new(self.alphabet_size, Some(self.position), End::Infinity);
                 self.nodes.push(leaf);
                 let leaf_index = self.nodes.len() - 1;
-                self.nodes[self.active_node].children[self.active_edge] = leaf_index;
+                let active_edge_index = self.text(self.active_edge);
+                self.nodes[self.active_node].children[active_edge_index] = leaf_index;
                 self.add_suffix_link(self.active_node);
             } else {
-                let next = self.nodes[self.active_node].children[self.active_edge];
+                let next = self.nodes[self.active_node].children[self.text(self.active_edge)];
                 if self.walk_down(next) {
                     continue;
                 }
@@ -187,21 +194,18 @@ impl SuffixTree {
                     End::Index(start + self.active_length),
                 );
                 self.nodes.push(split);
-                let active_edge_index = self.char_index(
-                    self.string
-                        .chars()
-                        .nth(self.active_edge)
-                        .expect("active_edge out of bounds in string"),
-                );
+                let active_edge_index = self.text(self.active_edge);
                 let split_index = self.nodes.len() - 1;
                 self.nodes[self.active_node].children[active_edge_index] = split_index;
                 let leaf = Node::new(self.alphabet_size, Some(self.position), End::Infinity);
                 self.nodes.push(leaf);
                 let leaf_index = self.nodes.len() - 1;
                 let char_index = self.char_index(c);
+
                 self.nodes[split_index].children[char_index] = leaf_index;
                 self.nodes[next].start = Some(start + self.active_length);
-                let next_char_index = self.char_index(self.string.chars().nth(start).unwrap());
+
+                let next_char_index = self.text(start); //check this area for correctness
                 self.nodes[split_index].children[next_char_index] = next;
                 self.add_suffix_link(split_index);
             }
