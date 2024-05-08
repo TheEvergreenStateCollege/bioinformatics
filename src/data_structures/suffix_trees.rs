@@ -1,4 +1,6 @@
 #![allow(dead_code, unused_variables)]
+
+use std::borrow::BorrowMut;
 enum End {
     Root,
     Infinity,
@@ -167,6 +169,7 @@ impl SuffixTree {
         // Increment the remainder to account for the char waiting to be inserted
         self.remainder += 1;
         self.position += 1;
+        let c = self.string.chars().nth(self.position).unwrap();
 
         while self.remainder > 0 {
             if self.active_length == 0 {
@@ -177,9 +180,10 @@ impl SuffixTree {
             if self.nodes[self.active_node].children[self.active_edge] == 0 {
                 let leaf = Node::new(self.size, Start::Index(self.position), End::Infinity);
                 self.nodes.push(leaf);
+                let leaf_index = self.nodes.len() - 1;
                 // Change the value of the edge to the index of the new node,
                 // Which is len() because the new node is at the end
-                self.nodes[self.active_node].children[self.active_edge] = self.nodes.len();
+                self.nodes[self.active_node].children[self.active_edge] = leaf_index;
                 self.add_suffix_link(self.active_node);
             } else {
                 let next = self.nodes[self.active_node].children[self.active_edge];
@@ -189,9 +193,7 @@ impl SuffixTree {
                 // This should always be true, because next is a child of another node, and
                 // start would only be Root if it belongs to the root
                 if let Start::Index(start) = self.nodes[next].start {
-                    if self.string.chars().nth(start + self.active_length)
-                        == self.string.chars().nth(self.position)
-                    {
+                    if self.string.chars().nth(start + self.active_length).unwrap() == c {
                         self.active_length += 1;
                         self.add_suffix_link(self.active_node);
                         break;
@@ -203,7 +205,33 @@ impl SuffixTree {
                     );
                     self.nodes.push(split);
                     let i = self.char_index(self.string.chars().nth(self.active_edge).unwrap());
-                    self.nodes[self.active_node].children[i] = self.nodes.len();
+                    let split_index = self.nodes.len() - 1;
+                    self.nodes[self.active_node].children[i] = split_index;
+
+                    let leaf = Node::new(self.size, Start::Index(self.position), End::Infinity);
+                    self.nodes.push(leaf);
+                    let leaf_index = self.nodes.len() - 1;
+
+                    let char_index = self.char_index(c);
+
+                    self.nodes[split_index].children[char_index] = leaf_index;
+                    if let Start::Index(sti) = self.nodes[next].start {
+                        self.nodes[next].start = Start::Index(sti + self.active_length);
+                        let next_char_index = self.char_index(self.string.chars().nth(sti).unwrap());
+                        self.nodes[split_index].children[next_char_index] = next;
+                        self.add_suffix_link(split_index);
+                    };
+                }
+            }
+            self.remainder -= 1;
+            if self.active_node == 0 && self.active_length > 0 { //0 is the root node
+                self.active_length -= 1;
+                self.active_edge = self.position - self.remainder + 1;
+            } else {
+                self.active_node = if self.nodes[self.active_node].suffix_link > Some(0) {
+                    self.nodes[self.active_node].suffix_link.unwrap()
+                } else {
+                    0 //Root node
                 }
             }
         }
