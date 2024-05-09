@@ -49,7 +49,7 @@ impl Node {
     }
 
     // Never called on Root
-    fn get_length(&mut self, position: &usize) -> usize {
+    fn get_length(&self, position: &usize) -> usize {
         let upper_bound = match self.end {
             //I'm not sure if the min is requred after accounting for infinity
             End::Index(i) => {if i < position + 1 {return i;} else {println!("Position + 1 was smaller!"); return position + 1;}},
@@ -227,14 +227,14 @@ impl SuffixTree {
         self.position += 1;
     }
 
-    pub fn find_substring(&mut self, substring: &str) -> (usize, usize) {
+    pub fn find_substring(&self, substring: &str) -> (usize, usize) {
         let mut current_node: usize = 0; //start at root
         let mut index_in_node: usize = 0; //Node has no substring it refers to
         let mut chars_in_node: usize = 0;
         let mut match_size: usize = 0;
 
         for c in substring.chars() {
-            if index_in_node == chars_in_node - 1 {
+            if index_in_node + 1 >= chars_in_node {
                 let child = self.nodes[current_node].children[self.char_index(c)];
                 if child == 0 {
                     return (self.nodes[current_node].start.unwrap(), match_size);

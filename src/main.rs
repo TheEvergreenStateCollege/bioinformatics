@@ -30,7 +30,7 @@ fn main() {
     //align_fragments(&fragments, &trans_array, &transcriptome);
 
     let st_banana = SuffixTree::new("banana", 4);
-    println!("{:?}", st_banana);
+    println!("{:?}", st_banana.find_substring("na"));
 }
 
 // How to run:
