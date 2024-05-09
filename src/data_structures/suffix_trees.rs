@@ -91,12 +91,13 @@ pub struct SuffixTree {
 }
 
 impl SuffixTree {
-    pub fn new(string: &str, alphabet_size: usize) -> Self {
+    pub fn new(string: &str, alphabet: String) -> Self {
+        let size = alphabet.len();
         let mut tree = Self {
             string: String::new(),
-            nodes: vec![Node::new(alphabet_size, None, End::Root)],
-            alphabet: String::new(),
-            alphabet_size,
+            nodes: vec![Node::new(size, None, End::Root)],
+            alphabet: alphabet,
+            alphabet_size: size,
             need_sl: None,
             position: 0,
             remainder: 0,
