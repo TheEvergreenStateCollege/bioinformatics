@@ -189,6 +189,7 @@ impl SuffixTree {
                     self.add_suffix_link(self.active_node);
                     break;
                 }
+                //Internal nodes are the only nodes with an end other than infinity
                 let split = Node::new(
                     self.alphabet_size,
                     Some(start),
