@@ -192,7 +192,7 @@ impl SuffixTree {
                 let split = Node::new(
                     self.alphabet_size,
                     Some(start),
-                    End::Index(start + self.active_length),
+                    End::Index(start + self.active_length - 1), //I think this solves for the translation error off of... If (end ≠ ∞) { End = End -1} Else {No change}
                 );
                 self.nodes.push(split);
                 let active_edge_index = self.text(self.active_edge);
