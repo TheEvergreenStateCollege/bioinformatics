@@ -130,3 +130,5 @@ int main()
     }
     return 0;
 }
+// This code works, but notibly, child nodes split of before the chart indexed by start,
+// not after. Also start and end index the string from 1

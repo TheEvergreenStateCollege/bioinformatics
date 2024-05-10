@@ -228,6 +228,9 @@ impl SuffixTree {
         self.position += 1;
     }
 
+    // The original code indexes from 1 in the string (start and end) but my code indexes from 0
+    // and I don't know why. wtf
+
     pub fn find_substring(&self, substring: &str) -> (usize, usize) {
         let mut current_node: usize = 0; //start at root
         let mut index_in_node: usize = 0; //Node has no substring it refers to

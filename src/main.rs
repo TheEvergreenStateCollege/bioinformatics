@@ -30,8 +30,8 @@ fn main() {
     //align_fragments(&fragments, &trans_array, &transcriptome);
 
     let st_banana = SuffixTree::new("xabxac$", "xabc$".to_string());
-    dbg!(&st_banana);
-    println!("{:?}", st_banana.find_substring("bxa"));
+    //dbg!(&st_banana);
+    println!("{:?}", st_banana.find_substring("xac"));
 }
 
 // How to run:
