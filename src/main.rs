@@ -29,8 +29,9 @@ fn main() {
     //let trans_array = FragmentArray::new(transcriptome.get_bases(), 50);
     //align_fragments(&fragments, &trans_array, &transcriptome);
 
-    let st_banana = SuffixTree::new("banana", "ban".to_string());
-    println!("{:?}", st_banana.find_substring("na"));
+    let st_banana = SuffixTree::new("xabxac$", "xabc$".to_string());
+    dbg!(&st_banana);
+    println!("{:?}", st_banana.find_substring("bxa"));
 }
 
 // How to run:

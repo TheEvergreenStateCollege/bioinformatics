@@ -116,5 +116,17 @@ void st_extend(char c)
 
 int main()
 {
+    string input = "xabxac";
+    for (int i = 0; i < input.length(); i++) {
+        st_extend(input[i]);
+    }
+    for (int i = 0; i < 2 * MAXN; i++) {
+        node n = tree[i];
+        printf("%d", n.start);
+        printf("%d", n.end);
+        for (int j = 0; i < ALPHABET_SIZE; j ++ ) {
+            printf("%d", n.next[j]);
+        }   
+    }
     return 0;
 }
