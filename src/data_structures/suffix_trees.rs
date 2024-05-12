@@ -1,3 +1,5 @@
+use std::fmt::format;
+
 #[derive(Debug)]
 enum End {
     Root,
@@ -51,7 +53,8 @@ impl Node {
     // Never called on Root
     fn get_length(&self, position: &usize) -> usize {
         let upper_bound = match self.end {
-            //I'm not sure if the min is requred after accounting for infinity
+            // I'm not sure if the min is requred after accounting for infinity
+            // From testing it seems like it isn't. I'll leave it in to be safe
             End::Index(i) => {if i < position + 1 {return i;} else {println!("Position + 1 was smaller!"); return position + 1;}},
             End::Infinity => position + 1,
             End::Root => panic!("Tried to get end of root"),
@@ -60,6 +63,7 @@ impl Node {
         return upper_bound - lower_bound;
     }
 }
+
 //make node trait and make root special for hash table. because that could be scary good.
 #[derive(Debug)]
 pub struct SuffixTree {
@@ -70,8 +74,8 @@ pub struct SuffixTree {
 
     /// Alphabet of chars we have seen.
     alphabet: String,
-    /// Size of the alphabet
-    alphabet_size: usize,
+    /// Lookup table from char to the index in children which that char corresponds to
+    alphabet_lookup_table: Vec<usize>,
     /// Node that needs to be suffix linked,
     need_sl: Option<usize>,
 
@@ -91,13 +95,12 @@ pub struct SuffixTree {
 }
 
 impl SuffixTree {
-    pub fn new(string: &str, alphabet: String) -> Self {
-        let size = alphabet.len();
+    pub fn new(string: &str) -> Self {
         let mut tree = Self {
             string: String::new(),
-            nodes: vec![Node::new(size, None, End::Root)],
-            alphabet: alphabet,
-            alphabet_size: size,
+            nodes: vec![Node::new(0, None, End::Root)],
+            alphabet: String::new(),
+            alphabet_lookup_table: Vec::new(),
             need_sl: None,
             position: 0,
             remainder: 0,
@@ -110,12 +113,27 @@ impl SuffixTree {
     }
 
     fn char_index(&self, c: char) -> usize {
-        for (index, val) in self.alphabet.chars().enumerate() {
-            if val == c {
-                return index;
-            }
+        return self.alphabet_lookup_table[c as usize];
+    }
+
+    fn extend_alphabet(&mut self, c: char) {
+        // Using a lookup table this way wastes memory (256 or less if using ascii chars),
+        // But up to 2^32 if using 4 byte chars. However, it makes char_index very fast
+        // Which matters because it will be called often
+        self.alphabet.push(c);
+        //The char will always be u32 or smaller (intrinsic feature of char type)
+        let table_index = c as usize;
+        // 0 in the lookup table is just a placeholder
+        // Also, resize will truncate, so this check is required
+        if self.alphabet_lookup_table.len() < table_index + 1 {
+            self.alphabet_lookup_table.resize(table_index + 1, 0);
         }
-        return 0;
+        self.alphabet_lookup_table[table_index] = self.alphabet.len() - 1;
+
+        for node in self.nodes.iter_mut() {
+            // Resize can truncate, but the alphabet size only increases so it isn't a problem
+            node.children.resize(self.alphabet.len(), 0);
+        }
     }
 
     pub fn append_string(&mut self, s: &str) {
@@ -145,15 +163,24 @@ impl SuffixTree {
         return false;
     }
 
-    // Returns the same thing as text[i] in the original code, plus char_index to convert from
-    // thier use of char as an index to our alphabet based indexing
+    // Returns the same thing as text[i] in the original code, using char_index to convert from
+    // thier use of char as an index to my lookup table based index
+
+    // This is really expensive for large strings because .nth() is O(n), but it's 
+    // necessary to handle arbitrary utf-8 strings. (because chars are 1-4 bytes)
+    // If we narrow the tree to handling only ascii, then we could use O(1) indexing
     fn text(&self, index: usize) -> usize {
         self.char_index(self.string.chars().nth(index).expect("char out of bounds"))
     }
 
-    //Original extend adds the char to the string, but ours assumes it has already been added
     fn extend(&mut self, c: char) {
+
         self.string.push(c);
+
+        if !self.alphabet.contains(c) {
+            self.extend_alphabet(c);
+        }
+
         self.need_sl = None;
         // Increment the remainder to account for the char waiting to be inserted
         self.remainder += 1;
@@ -164,7 +191,7 @@ impl SuffixTree {
             }
             // Children contains indicies into a vec containing all nodes. If the index is 0, it means that there is no such node
             if self.nodes[self.active_node].children[self.text(self.active_edge)] == 0 {
-                let leaf = Node::new(self.alphabet_size, Some(self.position), End::Infinity);
+                let leaf = Node::new(self.alphabet.len(), Some(self.position), End::Infinity);
                 self.nodes.push(leaf);
                 let leaf_index = self.nodes.len() - 1;
                 let active_edge_index = self.text(self.active_edge);
@@ -191,7 +218,7 @@ impl SuffixTree {
                 }
                 //Internal nodes are the only nodes with an end other than infinity
                 let split = Node::new(
-                    self.alphabet_size,
+                    self.alphabet.len(),
                     Some(start),
                     End::Index(start + self.active_length - 1), //I think this solves for the translation error off of... If (end ≠ ∞) { End = End -1} Else {No change}
                 );
@@ -199,7 +226,7 @@ impl SuffixTree {
                 let active_edge_index = self.text(self.active_edge);
                 let split_index = self.nodes.len() - 1;
                 self.nodes[self.active_node].children[active_edge_index] = split_index;
-                let leaf = Node::new(self.alphabet_size, Some(self.position), End::Infinity);
+                let leaf = Node::new(self.alphabet.len(), Some(self.position), End::Infinity);
                 self.nodes.push(leaf);
                 let leaf_index = self.nodes.len() - 1;
                 let char_index = self.char_index(c);
