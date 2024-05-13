@@ -1,0 +1,32 @@
+Found a false result from the constructor 
+05/13/24
+
+SuffixTree { string: "xabxacxabbx", nodes: [
+Node { start: None, end: Root, suffix_link: None, children: [4, 6, 12, 8] }, 
+
+	Node { start: Some(2), end: Infinity, suffix_link: None, children: [0, 0, 0, 0] }, 
+	Node { start: Some(2), end: Infinity, suffix_link: None, children: [0, 0, 0, 0] }, 
+	Node { start: Some(3), end: Infinity, suffix_link: None, children: [0, 0, 0, 0] }, 
+	Node { start: Some(0), end: Index(1), suffix_link: Some(10), children: [1, 9, 0, 5] }, 
+	Node { start: Some(5), end: Infinity, suffix_link: None, children: [0, 0, 0, 0] }, 
+	Node { start: Some(1), end: Index(1), suffix_link: Some(0), children: [0, 10, 0, 7] }, 
+	Node { start: Some(5), end: Infinity, suffix_link: None, children: [0, 0, 0, 0] }, 
+	Node { start: Some(5), end: Infinity, suffix_link: None, children: [0, 0, 0, 0] }, 
+	Node { start: Some(7), end: Infinity, suffix_link: None, children: [0, 0, 0, 0] }, 
+	Node { start: Some(2), end: Index(1), suffix_link: None, children: [0, 11, 2, 0] }, 
+	Node { start: Some(7), end: Infinity, suffix_link: None, children: [0, 0, 0, 0] }, 
+	Node { start: Some(2), end: Index(2), suffix_link: Some(0), children: [0, 0, 3, 0] }, 
+	Node { start: Some(9), end: Infinity, suffix_link: None, children: [0, 0, 0, 0] }], alphabet: 
+
+"xabc", alphabet_lookup_table: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], need_sl: Some(0), position: 11, remainder: 2, active_node: 0, active_edge: 9, active_length: 2 }
+
+The tree is inaccurate: 
+
+Go to node 4, map the node starting at index 0 (x) and ending at index 1 (a), 
+Note that node 4 has 3 children.
+Try to map node 4’s child node 9.
+From node 4, node 9 maps the characters of index 7(a) to infinity. 
+The issue is that now a path exists from root that represents ‘xaabbx’ which is not a substring of S. 
+Note though that really 4 should only have 2 children and that really node 9 should just represent just i[2] – i[2] with an internal node to represent bbx.
+
+I’m not sure of a solution yet, I’m confused why this is the case.
