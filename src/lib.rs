@@ -40,6 +40,11 @@ mod tests {
         assert_eq!(dist, 1);
     }
 
+    #[test]
+    fn try_suffix_tree(){
+        let st: SuffixTree = SuffixTree::new("xacxad");
+    }
+
 }
 
 
