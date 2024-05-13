@@ -55,12 +55,19 @@ impl Node {
         let upper_bound = match self.end {
             // I'm not sure if the min is requred after accounting for infinity
             // From testing it seems like it isn't. I'll leave it in to be safe
-            End::Index(i) => {if i < position + 1 {return i;} else {println!("Position + 1 was smaller!"); return position + 1;}},
+            End::Index(i) => {
+                if i < position + 1 {
+                    return i;
+                } else {
+                    println!("Position + 1 was smaller!");
+                    return position + 1;
+                }
+            }
             End::Infinity => position + 1,
             End::Root => panic!("Tried to get end of root"),
         };
         let lower_bound = self.start.expect("Tried to get start of root");
-        return upper_bound - lower_bound;
+        upper_bound - lower_bound
     }
 }
 
@@ -113,7 +120,7 @@ impl SuffixTree {
     }
 
     fn char_index(&self, c: char) -> usize {
-        return self.alphabet_lookup_table[c as usize];
+        self.alphabet_lookup_table[c as usize]
     }
 
     fn extend_alphabet(&mut self, c: char) {
@@ -160,13 +167,13 @@ impl SuffixTree {
             self.active_node = node;
             return true;
         }
-        return false;
+        false
     }
 
     // Returns the same thing as text[i] in the original code, using char_index to convert from
     // thier use of char as an index to my lookup table based index
 
-    // This is really expensive for large strings because .nth() is O(n), but it's 
+    // This is really expensive for large strings because .nth() is O(n), but it's
     // necessary to handle arbitrary utf-8 strings. (because chars are 1-4 bytes)
     // If we narrow the tree to handling only ascii, then we could use O(1) indexing
     fn text(&self, index: usize) -> usize {
@@ -174,7 +181,6 @@ impl SuffixTree {
     }
 
     fn extend(&mut self, c: char) {
-
         self.string.push(c);
 
         if !self.alphabet.contains(c) {
@@ -275,14 +281,18 @@ impl SuffixTree {
                     chars_in_node = self.nodes[current_node].get_length(&self.string.len());
                     index_in_node = 0;
                 }
+            } else if self
+                .string
+                .chars()
+                .nth(self.nodes[current_node].start.unwrap() + index_in_node)
+                .unwrap()
+                == c
+            {
+                index_in_node += 1;
+                match_size += 1;
+                continue;
             } else {
-                if self.string.chars().nth(self.nodes[current_node].start.unwrap() + index_in_node).unwrap() == c {
-                    index_in_node += 1;
-                    match_size += 1;
-                    continue;
-                } else {
-                    return (self.nodes[current_node].start.unwrap(), match_size);
-                }
+                return (self.nodes[current_node].start.unwrap(), match_size);
             }
         }
         (0, 0)
