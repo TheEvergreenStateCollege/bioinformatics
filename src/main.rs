@@ -29,9 +29,9 @@ fn main() {
     //let trans_array = FragmentArray::new(transcriptome.get_bases(), 50);
     //align_fragments(&fragments, &trans_array, &transcriptome);
 
-    let st = SuffixTree::new("xacxad❤️😂_(●'◡'●)");
-    //dbg!(&st);
-    println!("{:?}", st.find_substring("❤️"));
+    let st = SuffixTree::new("xabxacxabbx");
+    dbg!(&st);
+    //println!("{:?}", st.find_substring("❤️"));
 }
 
 // How to run:
