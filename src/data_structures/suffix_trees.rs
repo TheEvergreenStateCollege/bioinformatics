@@ -1,3 +1,4 @@
+use core::fmt;
 use std::fmt::format;
 
 #[derive(Debug)]
@@ -294,6 +295,33 @@ impl SuffixTree {
             }
         }
         (0, 0)
+    }
+}
+
+impl fmt::Display for SuffixTree {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        for (index, node) in self.nodes.iter().enumerate() {
+            writeln!(f, "{:<3} | {}", index, node)?;
+        }
+        write!(f, "")
+    }
+}
+impl fmt::Display for Node {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let start: String = match self.start {
+            Some(x) => x.to_string(),
+            None => "None".to_string(),
+        };
+        let end: String = match self.end {
+            End::Root => "Root".to_string(),
+            End::Index(x) => x.to_string(),
+            End::Infinity => "End".to_string(),
+        };
+        let sl: String = match self.suffix_link {
+            Some(x) => x.to_string(),
+            None => "No SL".to_string(),
+        };
+        write!(f, "{:<6} | {:<6} | {:<6} | {:?}", start, end, sl, self.children)
     }
 }
 
