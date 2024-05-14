@@ -12,18 +12,11 @@ impl<'a> FragmentArray<'a> {
             let frag: &str = &bases[i * frag_size as usize..(i + 1) * frag_size as usize];
             map.entry(frag).or_insert(vec![i as u32]).push(i as u32);
         };
-
-        // for (key, val) in map.iter() {
-        //     println!("{}", key);
-        // }
-
         Self { map, frag_size }
     }
-
     pub fn indicies(&self, k_mer: &str) -> Option<&Vec<u32>> {
         self.map.get(k_mer)
     }
-
     pub fn get_size(&self) -> u32 {
         self.frag_size
     }

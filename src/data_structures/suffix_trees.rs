@@ -182,7 +182,7 @@ impl SuffixTree {
         }
 
         self.need_sl = None;
-        // Increment the remainder to account for the char waiting to be inserted
+        // Increment the  to account for the char waiting to be inserted
         self.remainder += 1;
 
         while self.remainder > 0 {
