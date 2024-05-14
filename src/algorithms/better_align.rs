@@ -43,7 +43,7 @@ pub fn align_fragments(
 ) -> Vec<Option<(u32, u8)>> {
     let mut matches: Vec<Option<(u32, u8)>> = Vec::new();
 
-    let mut count = 0;
+    let mut _count = 0;
 
     for frag in frags {
 

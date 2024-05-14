@@ -1,3 +1,4 @@
+#![allow(dead_code, unused_variables, unused_imports)]
 use core::fmt;
 use std::fmt::format;
 
@@ -160,9 +161,9 @@ impl SuffixTree {
     fn walk_down(&mut self, node: usize) -> bool {
         let length = self.nodes[node].get_length(self.position as usize);
         if self.active_length >= length {
-            if self.active_edge == 0 {
-                return false; // if not we're probably at root. so we're not walking down.
-            }
+            // if self.active_edge == 0 {
+            //     return false; // if not we're probably at root. so we're not walking down.
+            // }
             self.active_edge += length;
             self.active_length -= length;
             self.active_node = node;
@@ -310,7 +311,7 @@ impl fmt::Display for Node {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let start: String = match self.start {
             Some(x) => x.to_string(),
-            None => "None".to_string(),
+            None => "Root".to_string(),
         };
         let end: String = match self.end {
             End::Root => "Root".to_string(),

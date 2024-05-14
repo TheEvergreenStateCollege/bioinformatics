@@ -1,3 +1,4 @@
+#![allow(dead_code, unused_variables, unused_imports)]
 use clap::{command, Parser};
 use rusty_plants::{
     algorithms::better_align::align_fragments,
@@ -29,7 +30,7 @@ fn main() {
     //let trans_array = FragmentArray::new(transcriptome.get_bases(), 50);
     //align_fragments(&fragments, &trans_array, &transcriptome);
 
-    let st = SuffixTree::new("xabxacxabbx");
+    let st = SuffixTree::new("xaxaa");
     println!("{}", &st);
     //println!("{:?}", st.find_substring("❤️"));
 }
