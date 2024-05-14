@@ -51,16 +51,23 @@ impl Node {
     }
 
     // Never called on Root
-    fn get_length(&self, position: &usize) -> usize {
+    fn get_length(&self, position: usize) -> usize {
         let upper_bound = match self.end {
             // I'm not sure if the min is requred after accounting for infinity
             // From testing it seems like it isn't. I'll leave it in to be safe
-            End::Index(i) => {if i < position + 1 {return i;} else {println!("Position + 1 was smaller!"); return position + 1;}},
+            End::Index(i) => {
+                if i < position + 1 {
+                    return i;
+                } else {
+                    println!("Position + 1 was smaller!");
+                    return position + 1;
+                }
+            }
             End::Infinity => position + 1,
             End::Root => panic!("Tried to get end of root"),
         };
         let lower_bound = self.start.expect("Tried to get start of root");
-        return upper_bound - lower_bound;
+        upper_bound - lower_bound
     }
 }
 
@@ -81,7 +88,7 @@ pub struct SuffixTree {
 
     // String tracking offset variables.
     /// How far we are into the string for construction.
-    position: usize,
+    position: isize,
     /// How many characters from input need resolving yet.
     remainder: usize,
 
@@ -102,7 +109,7 @@ impl SuffixTree {
             alphabet: String::new(),
             alphabet_lookup_table: Vec::new(),
             need_sl: None,
-            position: 0,
+            position: -1,
             remainder: 0,
             active_node: 0,
             active_edge: 0,
@@ -113,7 +120,7 @@ impl SuffixTree {
     }
 
     fn char_index(&self, c: char) -> usize {
-        return self.alphabet_lookup_table[c as usize];
+        self.alphabet_lookup_table[c as usize]
     }
 
     fn extend_alphabet(&mut self, c: char) {
@@ -150,7 +157,7 @@ impl SuffixTree {
     }
 
     fn walk_down(&mut self, node: usize) -> bool {
-        let length = self.nodes[node].get_length(&self.position);
+        let length = self.nodes[node].get_length(self.position as usize);
         if self.active_length >= length {
             if self.active_edge == 0 {
                 return false; // if not we're probably at root. so we're not walking down.
@@ -160,13 +167,13 @@ impl SuffixTree {
             self.active_node = node;
             return true;
         }
-        return false;
+        false
     }
 
     // Returns the same thing as text[i] in the original code, using char_index to convert from
     // thier use of char as an index to my lookup table based index
 
-    // This is really expensive for large strings because .nth() is O(n), but it's 
+    // This is really expensive for large strings because .nth() is O(n), but it's
     // necessary to handle arbitrary utf-8 strings. (because chars are 1-4 bytes)
     // If we narrow the tree to handling only ascii, then we could use O(1) indexing
     fn text(&self, index: usize) -> usize {
@@ -174,7 +181,7 @@ impl SuffixTree {
     }
 
     fn extend(&mut self, c: char) {
-
+        self.position += 1;
         self.string.push(c);
 
         if !self.alphabet.contains(c) {
@@ -187,11 +194,11 @@ impl SuffixTree {
 
         while self.remainder > 0 {
             if self.active_length == 0 {
-                self.active_edge = self.position;
+                self.active_edge = self.position as usize;
             }
             // Children contains indicies into a vec containing all nodes. If the index is 0, it means that there is no such node
             if self.nodes[self.active_node].children[self.text(self.active_edge)] == 0 {
-                let leaf = Node::new(self.alphabet.len(), Some(self.position), End::Infinity);
+                let leaf = Node::new(self.alphabet.len(), Some(self.position as usize), End::Infinity);
                 self.nodes.push(leaf);
                 let leaf_index = self.nodes.len() - 1;
                 let active_edge_index = self.text(self.active_edge);
@@ -220,13 +227,13 @@ impl SuffixTree {
                 let split = Node::new(
                     self.alphabet.len(),
                     Some(start),
-                    End::Index(start + self.active_length - 1), //I think this solves for the translation error off of... If (end ≠ ∞) { End = End -1} Else {No change}
+                    End::Index(start + self.active_length), //I think this solves for the translation error off of... If (end ≠ ∞) { End = End -1} Else {No change}
                 );
                 self.nodes.push(split);
                 let active_edge_index = self.text(self.active_edge);
                 let split_index = self.nodes.len() - 1;
                 self.nodes[self.active_node].children[active_edge_index] = split_index;
-                let leaf = Node::new(self.alphabet.len(), Some(self.position), End::Infinity);
+                let leaf = Node::new(self.alphabet.len(), Some(self.position as usize), End::Infinity);
                 self.nodes.push(leaf);
                 let leaf_index = self.nodes.len() - 1;
                 let char_index = self.char_index(c);
@@ -242,7 +249,7 @@ impl SuffixTree {
             //0 is the index of the root node
             if self.active_node == 0 && self.active_length > 0 {
                 self.active_length -= 1;
-                self.active_edge = self.position - self.remainder + 1;
+                self.active_edge = self.position as usize - self.remainder + 1;
             } else {
                 self.active_node = if self.nodes[self.active_node].suffix_link > Some(0) {
                     self.nodes[self.active_node].suffix_link.unwrap()
@@ -251,9 +258,6 @@ impl SuffixTree {
                 }
             }
         }
-        // The original code has position start at -1 and increments at the start of extend,
-        // but we use a usize so we start at 0 and increment at the end
-        self.position += 1;
     }
 
     // The original code indexes from 1 in the string (start and end) but my code indexes from 0
@@ -272,17 +276,21 @@ impl SuffixTree {
                     return (self.nodes[current_node].start.unwrap(), match_size);
                 } else {
                     current_node = child;
-                    chars_in_node = self.nodes[current_node].get_length(&self.string.len());
+                    chars_in_node = self.nodes[current_node].get_length(self.string.len());
                     index_in_node = 0;
                 }
+            } else if self
+                .string
+                .chars()
+                .nth(self.nodes[current_node].start.unwrap() + index_in_node)
+                .unwrap()
+                == c
+            {
+                index_in_node += 1;
+                match_size += 1;
+                continue;
             } else {
-                if self.string.chars().nth(self.nodes[current_node].start.unwrap() + index_in_node).unwrap() == c {
-                    index_in_node += 1;
-                    match_size += 1;
-                    continue;
-                } else {
-                    return (self.nodes[current_node].start.unwrap(), match_size);
-                }
+                return (self.nodes[current_node].start.unwrap(), match_size);
             }
         }
         (0, 0)
