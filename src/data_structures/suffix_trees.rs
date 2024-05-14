@@ -161,9 +161,6 @@ impl SuffixTree {
     fn walk_down(&mut self, node: usize) -> bool {
         let length = self.nodes[node].get_length(self.position as usize);
         if self.active_length >= length {
-            // if self.active_edge == 0 {
-            //     return false; // if not we're probably at root. so we're not walking down.
-            // }
             self.active_edge += length;
             self.active_length -= length;
             self.active_node = node;
