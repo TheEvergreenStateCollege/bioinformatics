@@ -107,7 +107,7 @@ impl SuffixTree {
     pub fn new(string: &str) -> Self {
         let mut tree = Self {
             string: String::new(),
-            nodes: vec![Node::new(0, None, End::Root)],
+            nodes: vec![Node::new(0, None, End::Root),Node::new(0, None, End::Root)],
             alphabet: String::new(),
             alphabet_lookup_table: Vec::new(),
             need_sl: None,
@@ -153,7 +153,11 @@ impl SuffixTree {
 
     fn add_suffix_link(&mut self, node: usize) {
         if let Some(sl) = self.need_sl {
-            self.nodes[sl].suffix_link = Some(node);
+            if node == 0 { //Prevents making suffix links to root
+                self.nodes[sl].suffix_link = None;
+            } else {
+                self.nodes[sl].suffix_link = Some(node);
+            }
         }
         self.need_sl = Some(node);
     }
@@ -320,13 +324,5 @@ impl fmt::Display for Node {
             None => "No SL".to_string(),
         };
         write!(f, "{:<6} | {:<6} | {:<6} | {:?}", start, end, sl, self.children)
-    }
-}
-
-#[cfg(tests)]
-mod tests {
-    #[test]
-    fn make_tree() {
-        let tree = SuffixTree::new(4);
     }
 }
