@@ -2,10 +2,12 @@
 use core::fmt;
 use std::fmt::format;
 
+const ROOT: usize = 1;
+
 #[derive(Debug)]
 enum End {
     Root,
-    Infinity,
+    End,
     Index(usize),
 }
 
@@ -65,7 +67,7 @@ impl Node {
                     return position + 1;
                 }
             }
-            End::Infinity => position + 1,
+            End::End => position + 1,
             End::Root => panic!("Tried to get end of root"),
         };
         let lower_bound = self.start.expect("Tried to get start of root");
@@ -107,13 +109,15 @@ impl SuffixTree {
     pub fn new(string: &str) -> Self {
         let mut tree = Self {
             string: String::new(),
-            nodes: vec![Node::new(0, None, End::Root),Node::new(0, None, End::Root)],
+            nodes: vec![
+                Node::new(0, Some(42069), End::Index(42069)), //Placeholder node
+                Node::new(0, None, End::Root)], //Root node
             alphabet: String::new(),
             alphabet_lookup_table: Vec::new(),
             need_sl: None,
             position: -1,
             remainder: 0,
-            active_node: 0,
+            active_node: 1,
             active_edge: 0,
             active_length: 0,
         };
@@ -201,7 +205,7 @@ impl SuffixTree {
             }
             // Children contains indicies into a vec containing all nodes. If the index is 0, it means that there is no such node
             if self.nodes[self.active_node].children[self.text(self.active_edge)] == 0 {
-                let leaf = Node::new(self.alphabet.len(), Some(self.position as usize), End::Infinity);
+                let leaf = Node::new(self.alphabet.len(), Some(self.position as usize), End::End);
                 self.nodes.push(leaf);
                 let leaf_index = self.nodes.len() - 1;
                 let active_edge_index = self.text(self.active_edge);
@@ -236,7 +240,8 @@ impl SuffixTree {
                 let active_edge_index = self.text(self.active_edge);
                 let split_index = self.nodes.len() - 1;
                 self.nodes[self.active_node].children[active_edge_index] = split_index;
-                let leaf = Node::new(self.alphabet.len(), Some(self.position as usize), End::Infinity);
+
+                let leaf = Node::new(self.alphabet.len(), Some(self.position as usize), End::End);
                 self.nodes.push(leaf);
                 let leaf_index = self.nodes.len() - 1;
                 let char_index = self.char_index(c);
@@ -249,22 +254,24 @@ impl SuffixTree {
                 self.add_suffix_link(split_index);
             }
             self.remainder -= 1;
-            //0 is the index of the root node
-            if self.active_node == 0 && self.active_length > 0 {
+            if self.active_node == ROOT && self.active_length > 0 {
                 self.active_length -= 1;
                 self.active_edge = self.position as usize - self.remainder + 1;
             } else {
                 self.active_node = if self.nodes[self.active_node].suffix_link > Some(0) {
                     self.nodes[self.active_node].suffix_link.unwrap()
                 } else {
-                    0 //Root node
+                    ROOT
                 }
             }
         }
     }
 
     // The original code indexes from 1 in the string (start and end) but my code indexes from 0
-    // and I don't know why. wtf
+    // and I don't know why. wtf.
+
+    // I figured it out. I was running the C++ code wrong and causing it to index from 1 as a result.
+    // This is why encapsulation is a thing. Also why does C++ let me access unitialized variables!?
 
     pub fn find_substring(&self, substring: &str) -> (usize, usize) {
         let mut current_node: usize = 0; //start at root
@@ -317,12 +324,13 @@ impl fmt::Display for Node {
         let end: String = match self.end {
             End::Root => "Root".to_string(),
             End::Index(x) => x.to_string(),
-            End::Infinity => "End".to_string(),
+            End::End => "End".to_string(),
         };
         let sl: String = match self.suffix_link {
             Some(x) => x.to_string(),
             None => "No SL".to_string(),
         };
-        write!(f, "{:<6} | {:<6} | {:<6} | {:?}", start, end, sl, self.children)
+        let children: Vec<&usize> = self.children.iter().filter(|x| {**x != 0}).collect();
+        write!(f, "{:<6} | {:<6} | {:<6} | {:?}", start, end, sl,children)
     }
 }

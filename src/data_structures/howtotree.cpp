@@ -122,18 +122,35 @@ int main()
         st_extend(input[i]);
     }
     
-    printf("root: %d\n", root);
     int i = 0;
-    while (i < input.length() + 2) {
+    while (i < last_added + 1) {
         node n = tree[i];
-        printf("node: %d ", i);
-        printf("start: %d ", n.start);
-        printf("end: %d ", n.end);
-        printf("sl: %d ", n.slink);
-        printf("[");
+        printf("%-3d |", i);
+        printf(" %-6d |", n.start);
+        if (n.end == oo) 
+        {
+            printf(" End    |");
+        } else 
+        {
+            printf(" %-6d |", n.end);
+        }
+        if (n.slink == 0) 
+        {
+            printf(" No SL  |");
+        } else 
+        {
+            printf(" %-6d |", n.slink);
+        }
+        printf(" [");
+        bool comma_flag = false;
         for (int j = 0; j < ALPHABET_SIZE; j ++ ) {
             if (n.next[j] != 0) {
-                printf("%d, ", n.next[j]);
+                if (comma_flag) {
+                    printf(", ");
+                } else {
+                    comma_flag = true;
+                }
+                printf("%d", n.next[j]);
             }
         }
         printf("]");
@@ -142,5 +159,5 @@ int main()
     }
     return 0;
 }
-// This code works, but notibly, child nodes split of before the chart indexed by start,
-// not after. Also start and end index the string from 1
+// The end value of nodes in actually exclusive, so internal nodes don't include
+// the last character of their range ([start-end] is actually [start-(end-1)]).
