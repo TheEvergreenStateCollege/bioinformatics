@@ -111,7 +111,8 @@ impl SuffixTree {
             string: String::new(),
             nodes: vec![
                 Node::new(0, Some(42069), End::Index(42069)), //Placeholder node
-                Node::new(0, None, End::Root)], //Root node
+                Node::new(0, None, End::Root),
+            ], //Root node
             alphabet: String::new(),
             alphabet_lookup_table: Vec::new(),
             need_sl: None,
@@ -157,7 +158,8 @@ impl SuffixTree {
 
     fn add_suffix_link(&mut self, node: usize) {
         if let Some(sl) = self.need_sl {
-            if node == 0 { //Prevents making suffix links to root
+            if node == 0 {
+                //Prevents making suffix links to root
                 self.nodes[sl].suffix_link = None;
             } else {
                 self.nodes[sl].suffix_link = Some(node);
@@ -214,31 +216,24 @@ impl SuffixTree {
             } else {
                 let next = self.nodes[self.active_node].children[self.text(self.active_edge)];
                 if self.walk_down(next) {
-                    continue;
+                    continue; // Observation 1
                 }
-                let start = self.nodes[next]
-                    .start
-                    .expect("Tried to access start in root");
-                if self
-                    .string
-                    .chars()
-                    .nth(start + self.active_length)
-                    .expect("start + active_length out of bounds in string")
-                    == c
-                {
+                if self.string.chars().nth(self.nodes[next].start.unwrap() + self.active_length).unwrap() == c {
+                    // Observation 1
                     self.active_length += 1;
-                    self.add_suffix_link(self.active_node);
+                    self.add_suffix_link(self.active_node); // Observation 3
                     break;
                 }
                 //Internal nodes are the only nodes with an end other than infinity
                 let split = Node::new(
                     self.alphabet.len(),
-                    Some(start),
-                    End::Index(start + self.active_length), //I think this solves for the translation error off of... If (end ≠ ∞) { End = End -1} Else {No change}
+                    Some(self.nodes[next].start.unwrap()),
+                    // For the range represented by [start-end], end is exclusive
+                    End::Index(self.nodes[next].start.unwrap() + self.active_length),
                 );
                 self.nodes.push(split);
-                let active_edge_index = self.text(self.active_edge);
                 let split_index = self.nodes.len() - 1;
+                let active_edge_index = self.text(self.active_edge);
                 self.nodes[self.active_node].children[active_edge_index] = split_index;
 
                 let leaf = Node::new(self.alphabet.len(), Some(self.position as usize), End::End);
@@ -247,9 +242,10 @@ impl SuffixTree {
                 let char_index = self.char_index(c);
 
                 self.nodes[split_index].children[char_index] = leaf_index;
-                self.nodes[next].start = Some(start + self.active_length);
-
-                let next_char_index = self.text(start); //check this area for correctness
+                self.nodes[next].start = Some(self.nodes[next].start.unwrap() + self.active_length);
+                // There was an error here
+                // The old value of next.start was being used after it was updated on the line before
+                let next_char_index = self.text(self.nodes[next].start.unwrap()); 
                 self.nodes[split_index].children[next_char_index] = next;
                 self.add_suffix_link(split_index);
             }
@@ -258,11 +254,8 @@ impl SuffixTree {
                 self.active_length -= 1;
                 self.active_edge = self.position as usize - self.remainder + 1;
             } else {
-                self.active_node = if self.nodes[self.active_node].suffix_link > Some(0) {
-                    self.nodes[self.active_node].suffix_link.unwrap()
-                } else {
-                    ROOT
-                }
+                self.active_node = self.nodes[self.active_node].suffix_link.unwrap_or(ROOT);
+                //Rule 3
             }
         }
     }
@@ -330,7 +323,7 @@ impl fmt::Display for Node {
             Some(x) => x.to_string(),
             None => "No SL".to_string(),
         };
-        let children: Vec<&usize> = self.children.iter().filter(|x| {**x != 0}).collect();
-        write!(f, "{:<6} | {:<6} | {:<6} | {:?}", start, end, sl,children)
+        let children: Vec<&usize> = self.children.iter().filter(|x| **x != 0).collect();
+        write!(f, "{:<6} | {:<6} | {:<6} | {:?}", start, end, sl, children)
     }
 }

@@ -97,6 +97,7 @@ void st_extend(char c)
             }
             int split = new_node(tree[nxt].start, tree[nxt].start + active_len);
             tree[active_node].next[text[active_e]] = split;
+            
             int leaf = new_node(pos);
             tree[split].next[c] = leaf;
             tree[nxt].start += active_len;
@@ -117,7 +118,7 @@ void st_extend(char c)
 int main()
 {
     st_init();
-    string input = "xabxac";
+    string input = "xaccxaca";
     for (int i = 0; i < input.length(); i++) {
         st_extend(input[i]);
     }
