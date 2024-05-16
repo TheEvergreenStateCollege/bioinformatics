@@ -30,6 +30,7 @@ fn main() {
     //let trans_array = FragmentArray::new(transcriptome.get_bases(), 50);
     //align_fragments(&fragments, &trans_array, &transcriptome);
 
+    // xaccxaca
     let st = SuffixTree::new("xaccxaca");
     println!("{}", &st);
     //println!("{:?}", st.find_substring("❤️"));

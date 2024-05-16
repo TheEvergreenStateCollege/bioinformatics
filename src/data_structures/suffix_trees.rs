@@ -110,7 +110,7 @@ impl SuffixTree {
         let mut tree = Self {
             string: String::new(),
             nodes: vec![
-                Node::new(0, Some(42069), End::Index(42069)), //Placeholder node
+                Node::new(0, Some(0), End::Index(0)), //Placeholder node
                 Node::new(0, None, End::Root),
             ], //Root node
             alphabet: String::new(),
@@ -212,13 +212,19 @@ impl SuffixTree {
                 let leaf_index = self.nodes.len() - 1;
                 let active_edge_index = self.text(self.active_edge);
                 self.nodes[self.active_node].children[active_edge_index] = leaf_index;
-                self.add_suffix_link(self.active_node);
+                self.add_suffix_link(self.active_node); // Rule 2
             } else {
                 let next = self.nodes[self.active_node].children[self.text(self.active_edge)];
                 if self.walk_down(next) {
-                    continue; // Observation 1
+                    continue; // Observation 2
                 }
-                if self.string.chars().nth(self.nodes[next].start.unwrap() + self.active_length).unwrap() == c {
+                if self
+                    .string
+                    .chars()
+                    .nth(self.nodes[next].start.unwrap() + self.active_length)
+                    .unwrap()
+                    == c
+                {
                     // Observation 1
                     self.active_length += 1;
                     self.add_suffix_link(self.active_node); // Observation 3
@@ -243,14 +249,13 @@ impl SuffixTree {
 
                 self.nodes[split_index].children[char_index] = leaf_index;
                 self.nodes[next].start = Some(self.nodes[next].start.unwrap() + self.active_length);
-                // There was an error here
-                // The old value of next.start was being used after it was updated on the line before
-                let next_char_index = self.text(self.nodes[next].start.unwrap()); 
+                let next_char_index = self.text(self.nodes[next].start.unwrap());
                 self.nodes[split_index].children[next_char_index] = next;
-                self.add_suffix_link(split_index);
+                self.add_suffix_link(split_index); // Rule 2
             }
             self.remainder -= 1;
             if self.active_node == ROOT && self.active_length > 0 {
+                // Rule 1
                 self.active_length -= 1;
                 self.active_edge = self.position as usize - self.remainder + 1;
             } else {
@@ -259,13 +264,7 @@ impl SuffixTree {
             }
         }
     }
-
-    // The original code indexes from 1 in the string (start and end) but my code indexes from 0
-    // and I don't know why. wtf.
-
-    // I figured it out. I was running the C++ code wrong and causing it to index from 1 as a result.
-    // This is why encapsulation is a thing. Also why does C++ let me access unitialized variables!?
-
+    
     pub fn find_substring(&self, substring: &str) -> (usize, usize) {
         let mut current_node: usize = 0; //start at root
         let mut index_in_node: usize = 0; //Node has no substring it refers to
