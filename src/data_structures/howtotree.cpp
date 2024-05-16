@@ -115,40 +115,60 @@ void st_extend(char c)
     }
 }
 
-int main()
+void print_st()
 {
-    st_init();
-    string input = "xaccxaca";
-    for (int i = 0; i < input.length(); i++) {
-        st_extend(input[i]);
-    }
-    
-    int i = 0;
-    while (i < last_added + 1) {
+    printf("Suffix tree for: %s\n", text);
+    int i = 1; // Skips placeholder node
+    while (i < last_added + 1)
+    {
         node n = tree[i];
         printf("%-3d |", i);
-        printf(" %-6d |", n.start);
-        if (n.end == oo) 
+        // Pointer arithmetic plus format specifier for substrings to print string slice
+        printf(" %-10.*s |", n.end - n.start, text + n.start);
+
+        if (n.start == -1)
+        {
+            printf(" Root   |");
+        }
+        else
+        {
+            printf(" %-6d |", n.start);
+        }
+
+        if (n.end == oo)
         {
             printf(" End    |");
-        } else 
-        {
-            printf(" %-6d |", n.end);
         }
-        if (n.slink == 0) 
+        else if (n.end == -1)
+        {
+            printf(" Root   |");
+        }
+        else
+        {
+            printf(" %-6d |", n.end - 1); //converted to inclusive range
+        }
+
+        if (n.slink == 0)
         {
             printf(" No SL  |");
-        } else 
+        }
+        else
         {
             printf(" %-6d |", n.slink);
         }
+
         printf(" [");
         bool comma_flag = false;
-        for (int j = 0; j < ALPHABET_SIZE; j ++ ) {
-            if (n.next[j] != 0) {
-                if (comma_flag) {
+        for (int j = 0; j < ALPHABET_SIZE; j++)
+        {
+            if (n.next[j] != 0)
+            {
+                if (comma_flag)
+                {
                     printf(", ");
-                } else {
+                }
+                else
+                {
                     comma_flag = true;
                 }
                 printf("%d", n.next[j]);
@@ -157,6 +177,17 @@ int main()
         printf("]");
         printf("\n");
         i++;
+    }
+}
+
+int main()
+{
+    st_init();
+    string input = "xaccxaca";
+    for (int i = 0; i < input.length(); i++)
+    {
+        st_extend(input[i]);
+        print_st();
     }
     return 0;
 }

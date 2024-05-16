@@ -32,7 +32,7 @@ fn main() {
 
     // xaccxaca
     let st = SuffixTree::new("xaccxaca");
-    println!("{}", &st);
+    //println!("{}", &st);
     //println!("{:?}", st.find_substring("❤️"));
 }
 

@@ -86,7 +86,7 @@ pub struct SuffixTree {
     /// Alphabet of chars we have seen.
     alphabet: String,
     /// Lookup table from char to the index in children which that char corresponds to
-    alphabet_lookup_table: Vec<usize>,
+    alphabet_indexer: Vec<usize>,
     /// Node that needs to be suffix linked,
     need_sl: Option<usize>,
 
@@ -114,7 +114,7 @@ impl SuffixTree {
                 Node::new(0, None, End::Root),
             ], //Root node
             alphabet: String::new(),
-            alphabet_lookup_table: Vec::new(),
+            alphabet_indexer: Vec::new(),
             need_sl: None,
             position: -1,
             remainder: 0,
@@ -126,10 +126,6 @@ impl SuffixTree {
         tree
     }
 
-    fn char_index(&self, c: char) -> usize {
-        self.alphabet_lookup_table[c as usize]
-    }
-
     fn extend_alphabet(&mut self, c: char) {
         // Using a lookup table this way wastes memory (256 or less if using ascii chars),
         // But up to 2^32 if using 4 byte chars. However, it makes char_index very fast
@@ -139,10 +135,10 @@ impl SuffixTree {
         let table_index = c as usize;
         // 0 in the lookup table is just a placeholder
         // Also, resize will truncate, so this check is required
-        if self.alphabet_lookup_table.len() < table_index + 1 {
-            self.alphabet_lookup_table.resize(table_index + 1, 0);
+        if self.alphabet_indexer.len() < table_index + 1 {
+            self.alphabet_indexer.resize(table_index + 1, 0);
         }
-        self.alphabet_lookup_table[table_index] = self.alphabet.len() - 1;
+        self.alphabet_indexer[table_index] = self.alphabet.len() - 1;
 
         for node in self.nodes.iter_mut() {
             // Resize can truncate, but the alphabet size only increases so it isn't a problem
@@ -153,6 +149,7 @@ impl SuffixTree {
     pub fn append_string(&mut self, s: &str) {
         for c in s.chars() {
             self.extend(c);
+            println!("{}", self);
         }
     }
 
@@ -179,92 +176,85 @@ impl SuffixTree {
         false
     }
 
-    // Returns the same thing as text[i] in the original code, using char_index to convert from
-    // thier use of char as an index to my lookup table based index
-
-    // This is really expensive for large strings because .nth() is O(n), but it's
-    // necessary to handle arbitrary utf-8 strings. (because chars are 1-4 bytes)
-    // If we narrow the tree to handling only ascii, then we could use O(1) indexing
-    fn text(&self, index: usize) -> usize {
-        self.char_index(self.string.chars().nth(index).expect("char out of bounds"))
+    fn text(&self, index: usize) -> char {
+        // This is O(1) but will cause very wrong behavior if you use chars that are more than 1 byte
+        self.string.as_bytes()[index] as char
+    }
+    fn text_index(&self, index: usize) -> usize {
+        self.char_index(self.text(index))
+    }
+    fn char_index(&self, c: char) -> usize {
+        self.alphabet_indexer[c as usize]
     }
 
     fn extend(&mut self, c: char) {
-        self.position += 1;
-        self.string.push(c);
-
-        if !self.alphabet.contains(c) {
-            self.extend_alphabet(c);
+        let s = self; // Alias self to s for brevity
+        s.position += 1;
+        s.string.push(c);
+        if !s.alphabet.contains(c) {
+            s.extend_alphabet(c);
         }
+        s.need_sl = None;
+        s.remainder += 1;
 
-        self.need_sl = None;
-        // Increment the  to account for the char waiting to be inserted
-        self.remainder += 1;
-
-        while self.remainder > 0 {
-            if self.active_length == 0 {
-                self.active_edge = self.position as usize;
+        while s.remainder > 0 {
+            if s.active_length == 0 {
+                s.active_edge = s.position as usize;
             }
-            // Children contains indicies into a vec containing all nodes. If the index is 0, it means that there is no such node
-            if self.nodes[self.active_node].children[self.text(self.active_edge)] == 0 {
-                let leaf = Node::new(self.alphabet.len(), Some(self.position as usize), End::End);
-                self.nodes.push(leaf);
-                let leaf_index = self.nodes.len() - 1;
-                let active_edge_index = self.text(self.active_edge);
-                self.nodes[self.active_node].children[active_edge_index] = leaf_index;
-                self.add_suffix_link(self.active_node); // Rule 2
+            if s.nodes[s.active_node].children[s.text_index(s.active_edge)] == 0 {
+                let leaf = Node::new(s.alphabet.len(), Some(s.position as usize), End::End);
+                s.nodes.push(leaf);
+                let leaf_index = s.nodes.len() - 1;
+                let active_edge_index = s.text_index(s.active_edge);
+                s.nodes[s.active_node].children[active_edge_index] = leaf_index;
+                s.add_suffix_link(s.active_node); // Rule 2
             } else {
-                let next = self.nodes[self.active_node].children[self.text(self.active_edge)];
-                if self.walk_down(next) {
+                let next =
+                    s.nodes[s.active_node].children[s.text_index(s.active_edge)];
+                if s.walk_down(next) {
                     continue; // Observation 2
                 }
-                if self
-                    .string
-                    .chars()
-                    .nth(self.nodes[next].start.unwrap() + self.active_length)
-                    .unwrap()
-                    == c
-                {
+                if s.text(s.nodes[next].start.unwrap() + s.active_length) == c {
                     // Observation 1
-                    self.active_length += 1;
-                    self.add_suffix_link(self.active_node); // Observation 3
+                    s.active_length += 1;
+                    s.add_suffix_link(s.active_node); // Observation 3
                     break;
                 }
-                //Internal nodes are the only nodes with an end other than infinity
+                // Internal nodes are the only nodes with an end other than the end of the string
                 let split = Node::new(
-                    self.alphabet.len(),
-                    Some(self.nodes[next].start.unwrap()),
+                    s.alphabet.len(),
+                    Some(s.nodes[next].start.unwrap()),
                     // For the range represented by [start-end], end is exclusive
-                    End::Index(self.nodes[next].start.unwrap() + self.active_length),
+                    End::Index(s.nodes[next].start.unwrap() + s.active_length),
                 );
-                self.nodes.push(split);
-                let split_index = self.nodes.len() - 1;
-                let active_edge_index = self.text(self.active_edge);
-                self.nodes[self.active_node].children[active_edge_index] = split_index;
+                s.nodes.push(split);
+                let split_index = s.nodes.len() - 1;
+                let active_edge_index = s.text_index(s.active_edge);
+                s.nodes[s.active_node].children[active_edge_index] = split_index;
 
-                let leaf = Node::new(self.alphabet.len(), Some(self.position as usize), End::End);
-                self.nodes.push(leaf);
-                let leaf_index = self.nodes.len() - 1;
-                let char_index = self.char_index(c);
+                let leaf = Node::new(s.alphabet.len(), Some(s.position as usize), End::End);
+                s.nodes.push(leaf);
+                let leaf_index = s.nodes.len() - 1;
+                let char_index = s.char_index(c);
 
-                self.nodes[split_index].children[char_index] = leaf_index;
-                self.nodes[next].start = Some(self.nodes[next].start.unwrap() + self.active_length);
-                let next_char_index = self.text(self.nodes[next].start.unwrap());
-                self.nodes[split_index].children[next_char_index] = next;
-                self.add_suffix_link(split_index); // Rule 2
+                s.nodes[split_index].children[char_index] = leaf_index;
+                s.nodes[next].start = Some(s.nodes[next].start.unwrap() + s.active_length);
+                let next_char_index = s.text_index(s.nodes[next].start.unwrap());
+                s.nodes[split_index].children[next_char_index] = next;
+                s.add_suffix_link(split_index); // Rule 2
             }
-            self.remainder -= 1;
-            if self.active_node == ROOT && self.active_length > 0 {
+            s.remainder -= 1;
+            if s.active_node == ROOT && s.active_length > 0 {
                 // Rule 1
-                self.active_length -= 1;
-                self.active_edge = self.position as usize - self.remainder + 1;
+                s.active_length -= 1;
+                s.active_edge = s.position as usize - s.remainder + 1;
             } else {
-                self.active_node = self.nodes[self.active_node].suffix_link.unwrap_or(ROOT);
+                s.active_node = s.nodes[s.active_node].suffix_link.unwrap_or(ROOT);
                 //Rule 3
             }
         }
     }
-    
+
     pub fn find_substring(&self, substring: &str) -> (usize, usize) {
         let mut current_node: usize = 0; //start at root
         let mut index_in_node: usize = 0; //Node has no substring it refers to
@@ -301,8 +291,18 @@ impl SuffixTree {
 
 impl fmt::Display for SuffixTree {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        for (index, node) in self.nodes.iter().enumerate() {
-            writeln!(f, "{:<3} | {}", index, node)?;
+        writeln!(f, "Suffix tree for: {}", self.string)?;
+        for (index, node) in self.nodes.iter().enumerate().skip(1) {
+            let mut substring = String::new();
+            if node.start.is_some() {
+                let end: usize = match node.end {
+                    End::Index(x) => x,
+                    End::End => self.string.len(),
+                    _ => 0,
+                };
+                substring.push_str(&self.string[node.start.unwrap()..end]);
+            }
+            writeln!(f, "{:<3} | {:<10} | {}", index, substring, node)?;
         }
         write!(f, "")
     }
@@ -315,7 +315,7 @@ impl fmt::Display for Node {
         };
         let end: String = match self.end {
             End::Root => "Root".to_string(),
-            End::Index(x) => x.to_string(),
+            End::Index(x) => (x - 1).to_string(),
             End::End => "End".to_string(),
         };
         let sl: String = match self.suffix_link {
