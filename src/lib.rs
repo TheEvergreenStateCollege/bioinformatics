@@ -2,14 +2,10 @@ pub mod file_io;
 pub mod data_structures;
 pub mod algorithms;
 
-use crate::algorithms::edit_distance::string_compare_r;
-//use crate::Graph;
-
 #[cfg(test)]
 mod tests {
-    use rayon::string;
-
     use crate::algorithms::edit_distance::string_compare_r;
+    use crate::data_structures::suffix_trees::SuffixTree;
 
     #[test]
     fn edit_distance_1() {
@@ -38,6 +34,11 @@ mod tests {
     fn edit_distance_3() {
         let dist = string_compare_r( "CAT", "CAR");
         assert_eq!(dist, 1);
+    }
+
+    #[test]
+    fn try_suffix_tree(){
+        let _st: SuffixTree = SuffixTree::new("xacxad");
     }
 
 }
