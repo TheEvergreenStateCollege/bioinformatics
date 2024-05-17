@@ -35,6 +35,3 @@ fn main() {
     //println!("{}", &st);
     //println!("{:?}", st.find_substring("❤️"));
 }
-
-// How to run:
-// cargo run --release  -- .\data\reads\ .\data\ref_genome.fna
