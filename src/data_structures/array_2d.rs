@@ -2,33 +2,39 @@ use std::fmt;
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct Array2D<T> {
-    array: Vec<T>,
+    cells: Vec<Option<T>>,
     width: usize,
     height: usize,
 }
 
 impl<T> Array2D<T>
 where
-    T: Default + Clone,
+    T: Clone,
 {
     pub fn new(width: usize, height: usize) -> Self {
         Array2D {
-            // TODO: The array should store Option
-            array: vec![T::default(); width * height],
+            cells: vec![None; width * height],
             width,
             height,
         }
     }
 
     pub fn get(&self, row: usize, col: usize) -> Option<&T> {
-        self.array.get((row * self.width) + col)
+        match self.cells.get((row * self.width) + col) {
+            // Out of bounds
+            None => None,
+            // Nothing in the cell
+            Some(None) => None,
+            // Something in the cell
+            Some(value) => value.as_ref(),
+        }
     }
 
     pub fn set(&mut self, row: usize, col: usize, value: T) {
         if row >= self.height || col >= self.width {
             panic!("Out of bounds");
         } else {
-            self.array[(row * self.width) + col] = value;
+            self.cells[(row * self.width) + col] = Some(value);
         }
     }
 }
@@ -38,9 +44,12 @@ where
     T: fmt::Display,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        for row in self.array.chunks(self.width) {
-            for col in row {
-                write!(f, "{} ", col)?;
+        for row in self.cells.chunks(self.width) {
+            for cell in row {
+                match cell {
+                    Some(value) => write!(f, "{} ", value)?,
+                    None => write!(f, "- ")?,
+                }
             }
             writeln!(f)?;
         }
