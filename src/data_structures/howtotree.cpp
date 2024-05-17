@@ -38,25 +38,27 @@ class SuffixTree
     int active_edge;
     int active_length;
 
-    public: SuffixTree()
+public:
+    SuffixTree()
     {
-        last_added = 0,
+        last_added = 1,
         need_suffix_link = 0,
         tree_remainder = 0,
         active_edge = 0,
         active_length = 0,
         position = -1,
         active_node = 1,
-        nodes[0] = Node();
+        nodes[0] = Node(0, 0);
+        nodes[1] = Node(-1, -1);
     }
 
-    int new_node(int start, int end = INF) 
+    int new_node(int start, int end = INF)
     {
         Node nd = Node(start, end);
         for (int i = 0; i < ALPHABET_SIZE; i++)
             nd.next[i] = 0;
         nodes[++last_added] = nd;
-        return last_added;       
+        return last_added;
     }
 
     void add_SL(int node)
@@ -192,8 +194,8 @@ class SuffixTree
 int main()
 {
     struct SuffixTree st = SuffixTree();
-    string input = "xaccxaca";
-    const char* c_string = input.c_str();
+    string input = "xaccxaca$";
+    const char *c_string = input.c_str();
     for (int i = 0; i < (int)input.length(); i++)
     {
         st.extend(c_string[i]);
