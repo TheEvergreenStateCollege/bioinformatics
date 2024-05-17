@@ -57,16 +57,7 @@ impl Node {
     // Never called on Root
     fn get_length(&self, position: usize) -> usize {
         let upper_bound = match self.end {
-            // I'm not sure if the min is requred after accounting for infinity
-            // From testing it seems like it isn't. I'll leave it in to be safe
-            End::Index(i) => {
-                if i < position + 1 {
-                    return i;
-                } else {
-                    println!("Position + 1 was smaller!");
-                    return position + 1;
-                }
-            }
+            End::Index(i) => return i,
             End::End => position + 1,
             End::Root => panic!("Tried to get end of root"),
         };
@@ -154,26 +145,25 @@ impl SuffixTree {
     }
 
     fn add_suffix_link(&mut self, node: usize) {
-        if let Some(sl) = self.need_sl {
-            if node == 0 {
+        if let Some(need_sl) = self.need_sl {
+            if node == ROOT {
                 //Prevents making suffix links to root
-                self.nodes[sl].suffix_link = None;
+                self.nodes[need_sl].suffix_link = None;
             } else {
-                self.nodes[sl].suffix_link = Some(node);
+                self.nodes[need_sl].suffix_link = Some(node);
             }
         }
         self.need_sl = Some(node);
     }
 
     fn walk_down(&mut self, node: usize) -> bool {
-        let length = self.nodes[node].get_length(self.position as usize);
-        if self.active_length >= length {
-            self.active_edge += length;
-            self.active_length -= length;
+        if self.active_length >= self.nodes[node].get_length(self.position as usize) {
+            self.active_edge += self.nodes[node].get_length(self.position as usize);
+            self.active_length -= self.nodes[node].get_length(self.position as usize);
             self.active_node = node;
             return true;
         }
-        false
+        return false;
     }
 
     fn text(&self, index: usize) -> char {
@@ -209,8 +199,7 @@ impl SuffixTree {
                 s.nodes[s.active_node].children[active_edge_index] = leaf_index;
                 s.add_suffix_link(s.active_node); // Rule 2
             } else {
-                let next =
-                    s.nodes[s.active_node].children[s.text_index(s.active_edge)];
+                let next = s.nodes[s.active_node].children[s.text_index(s.active_edge)];
                 if s.walk_down(next) {
                     continue; // Observation 2
                 }
@@ -268,16 +257,11 @@ impl SuffixTree {
                     return (self.nodes[current_node].start.unwrap(), match_size);
                 } else {
                     current_node = child;
-                    chars_in_node = self.nodes[current_node].get_length(self.string.len());
+                    // Placeholder 0 - get_length will not use position when working with internal nodes
+                    chars_in_node = self.nodes[current_node].get_length(0);
                     index_in_node = 0;
                 }
-            } else if self
-                .string
-                .chars()
-                .nth(self.nodes[current_node].start.unwrap() + index_in_node)
-                .unwrap()
-                == c
-            {
+            } else if self.text(self.nodes[current_node].start.unwrap() + index_in_node) == c {
                 index_in_node += 1;
                 match_size += 1;
                 continue;
@@ -315,7 +299,7 @@ impl fmt::Display for Node {
         };
         let end: String = match self.end {
             End::Root => "Root".to_string(),
-            End::Index(x) => (x - 1).to_string(),
+            End::Index(x) => x.to_string(),
             End::End => "End".to_string(),
         };
         let sl: String = match self.suffix_link {

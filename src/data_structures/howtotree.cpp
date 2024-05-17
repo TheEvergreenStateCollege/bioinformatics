@@ -145,7 +145,7 @@ void print_st()
         }
         else
         {
-            printf(" %-6d |", n.end - 1); //converted to inclusive range
+            printf(" %-6d |", n.end);
         }
 
         if (n.slink == 0)
@@ -183,7 +183,7 @@ void print_st()
 int main()
 {
     st_init();
-    string input = "xaccxaca";
+    string input = "xaccxaca$";
     for (int i = 0; i < input.length(); i++)
     {
         st_extend(input[i]);
