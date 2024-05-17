@@ -7,10 +7,13 @@ pub struct Array2D<T> {
     height: usize,
 }
 
-impl<T> Array2D<T> {
+impl<T> Array2D<T>
+where
+    T: Default + Clone,
+{
     pub fn new(width: usize, height: usize) -> Self {
         Array2D {
-            array: Vec::with_capacity(width * height),
+            array: vec![T::default(); width * height],
             width,
             height,
         }
@@ -36,8 +39,9 @@ where
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for row in self.array.chunks(self.width) {
             for col in row {
-                write!(f, "{}", col)?;
+                write!(f, "{} ", col)?;
             }
+            writeln!(f)?;
         }
 
         Ok(())
@@ -50,6 +54,23 @@ mod tests {
 
     #[test]
     fn test_constructor() {
-        let a: Array2D<i32> = Array2D::new(3, 3);
+        Array2D::<i32>::new(3, 3);
+    }
+
+    #[test]
+    fn test_display() {
+        let mut a: Array2D<i32> = Array2D::new(3, 3);
+        a.set(0, 0, 1);
+        a.set(0, 1, 2);
+        a.set(0, 2, 3);
+
+        a.set(1, 0, 4);
+        a.set(1, 1, 5);
+        a.set(1, 2, 6);
+
+        a.set(2, 0, 7);
+        a.set(2, 1, 8);
+        a.set(2, 2, 9);
+        assert_eq!("1 2 3 \n4 5 6 \n7 8 9 \n", a.to_string());
     }
 }
