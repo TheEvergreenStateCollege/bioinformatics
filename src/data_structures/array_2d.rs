@@ -13,6 +13,7 @@ where
 {
     pub fn new(width: usize, height: usize) -> Self {
         Array2D {
+            // TODO: The array should store Option
             array: vec![T::default(); width * height],
             width,
             height,
@@ -58,6 +59,27 @@ mod tests {
     }
 
     #[test]
+    fn test_set_get() {
+        let mut a: Array2D<i32> = Array2D::new(3, 3);
+        a.set(0, 0, 0);
+
+        assert_eq!(&0, a.get(0, 0).unwrap());
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_set_out_of_bounds() {
+        let mut a: Array2D<i32> = Array2D::new(3, 3);
+        a.set(4, 4, 0);
+    }
+
+    #[test]
+    fn test_get_out_of_bounds() {
+        let a: Array2D<i32> = Array2D::new(3, 3);
+        assert_eq!(None, a.get(4, 4));
+    }
+
+    #[test]
     fn test_display() {
         let mut a: Array2D<i32> = Array2D::new(3, 3);
         a.set(0, 0, 1);
@@ -71,6 +93,7 @@ mod tests {
         a.set(2, 0, 7);
         a.set(2, 1, 8);
         a.set(2, 2, 9);
+
         assert_eq!("1 2 3 \n4 5 6 \n7 8 9 \n", a.to_string());
     }
 }
