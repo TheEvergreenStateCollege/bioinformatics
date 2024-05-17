@@ -7,7 +7,7 @@ const ROOT: usize = 1;
 #[derive(Debug)]
 enum End {
     Root,
-    End,
+    EOS,
     Index(usize),
 }
 
@@ -57,8 +57,8 @@ impl Node {
     // Never called on Root
     fn get_length(&self, position: usize) -> usize {
         let upper_bound = match self.end {
-            End::Index(i) => return i,
-            End::End => position + 1,
+            End::Index(i) => return i + 1,
+            End::EOS => position + 1,
             End::Root => panic!("Tried to get end of root"),
         };
         let lower_bound = self.start.expect("Tried to get start of root");
@@ -192,7 +192,7 @@ impl SuffixTree {
                 s.active_edge = s.position as usize;
             }
             if s.nodes[s.active_node].children[s.text_index(s.active_edge)] == 0 {
-                let leaf = Node::new(s.alphabet.len(), Some(s.position as usize), End::End);
+                let leaf = Node::new(s.alphabet.len(), Some(s.position as usize), End::EOS);
                 s.nodes.push(leaf);
                 let leaf_index = s.nodes.len() - 1;
                 let active_edge_index = s.text_index(s.active_edge);
@@ -214,14 +214,14 @@ impl SuffixTree {
                     s.alphabet.len(),
                     Some(s.nodes[next].start.unwrap()),
                     // For the range represented by [start-end], end is exclusive
-                    End::Index(s.nodes[next].start.unwrap() + s.active_length),
+                    End::Index(s.nodes[next].start.unwrap() + s.active_length - 1),
                 );
                 s.nodes.push(split);
                 let split_index = s.nodes.len() - 1;
                 let active_edge_index = s.text_index(s.active_edge);
                 s.nodes[s.active_node].children[active_edge_index] = split_index;
 
-                let leaf = Node::new(s.alphabet.len(), Some(s.position as usize), End::End);
+                let leaf = Node::new(s.alphabet.len(), Some(s.position as usize), End::EOS);
                 s.nodes.push(leaf);
                 let leaf_index = s.nodes.len() - 1;
                 let char_index = s.char_index(c);
@@ -280,8 +280,8 @@ impl fmt::Display for SuffixTree {
             let mut substring = String::new();
             if node.start.is_some() {
                 let end: usize = match node.end {
-                    End::Index(x) => x,
-                    End::End => self.string.len(),
+                    End::Index(x) => x + 1,
+                    End::EOS => self.string.len(),
                     _ => 0,
                 };
                 substring.push_str(&self.string[node.start.unwrap()..end]);
@@ -300,7 +300,7 @@ impl fmt::Display for Node {
         let end: String = match self.end {
             End::Root => "Root".to_string(),
             End::Index(x) => x.to_string(),
-            End::End => "End".to_string(),
+            End::EOS => "End".to_string(),
         };
         let sl: String = match self.suffix_link {
             Some(x) => x.to_string(),
