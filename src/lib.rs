@@ -41,6 +41,33 @@ mod tests {
         let _st: SuffixTree = SuffixTree::new("xacxad");
     }
 
-}
+
+    #[test]
+    pub fn st_check_for_property1(){ //Root should have an alphabet size number of children.
+       
+        let _st: SuffixTree = SuffixTree::new("abcdeaccbe");
+        let _st_buffer: &Vec<crate::data_structures::suffix_trees::Node> = &_st.nodes;
+        let _st_alphabetlen = _st.alphabet.len();
+
+        if let Some(_st_root) = _st_buffer.get(1) { //Check if root exists.
+            
+            let _st_root_children_list = &_st_root.children;
+            let _st_root_children_length = &_st_root.children.len();
+            
+            println!("Children of root: {:?}", _st_root_children_list);
+            println!("Number of children root has: {:?}", _st_root_children_length);
+
+            if (_st_root_children_length == &_st_alphabetlen) { //The actual check.
+                println!("Property 1 Test: Root has an alphabet sized number of children and therefore passes property 1..");
+            } else {
+                println!("Error for property 1: Number of children for root != to size of alphabet... ")
+            }
+
+        } else {
+            println!("Failed no root found in tree");
+        }
+    }
+       
+ }
 
 

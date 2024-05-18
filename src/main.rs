@@ -31,7 +31,7 @@ fn main() {
     //align_fragments(&fragments, &trans_array, &transcriptome);
 
     // xaccxaca
-    let st = SuffixTree::new("xaccxaca");
+    let st: SuffixTree = SuffixTree::new("xaccxaca");
     //println!("{}", &st);
     //println!("{:?}", st.find_substring("❤️"));
 }

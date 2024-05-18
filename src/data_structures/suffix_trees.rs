@@ -14,7 +14,7 @@ enum End {
 // We should be able to find all occurences of a substring in a string,
 // not just the first one. Not sure how to implement that.
 #[derive(Debug)]
-struct Node {
+pub struct Node {
     /// The index in the string at the start of the substring the node represents
     /// start is None only for the root. The value of start in Root should never be accessed,
     /// so I'm setting it up to panic if it ever happens
@@ -29,11 +29,11 @@ struct Node {
 
     /// All nodes are stored in a vector and refered to by index. This stores the indicies of child nodes
     /// the size of this vec is always the alphabet size, for simplicity (it does waste memory though)
-    children: Vec<usize>,
+    pub children: Vec<usize>,
 }
 
 impl Node {
-    fn new(size: usize, start: Option<usize>, end: End) -> Self {
+    pub fn new(size: usize, start: Option<usize>, end: End) -> Self {
         Self {
             start,
             end,
@@ -72,12 +72,12 @@ pub struct SuffixTree {
     /// The string we're indexing into
     string: String,
     /// Nodes in the tree
-    nodes: Vec<Node>,
+    pub nodes: Vec<Node>,
 
     /// Alphabet of chars we have seen.
-    alphabet: String,
+    pub alphabet: String,
     /// Lookup table from char to the index in children which that char corresponds to
-    alphabet_indexer: Vec<usize>,
+    pub alphabet_indexer: Vec<usize>,
     /// Node that needs to be suffix linked,
     need_sl: Option<usize>,
 
