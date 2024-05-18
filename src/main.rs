@@ -2,7 +2,7 @@
 use clap::{command, Parser};
 use rusty_plants::{
     algorithms::better_align::align_fragments,
-    data_structures::{k_mer_array::FragmentArray, transcriptome::Transcriptome, suffix_trees::SuffixTree},
+    data_structures::{k_mer_array::FragmentArray, transcriptome::Transcriptome, suffix_tree::SuffixTree},
     file_io::fasta::*,
 };
 use std::{fs::read_to_string, path::PathBuf};
@@ -31,7 +31,16 @@ fn main() {
     //align_fragments(&fragments, &trans_array, &transcriptome);
 
     // xaccxaca
-    let st = SuffixTree::new("xaccxaca");
+    //let st = SuffixTree::new("xaccxaca");
+
     //println!("{}", &st);
     //println!("{:?}", st.find_substring("❤️"));
+
+    let mut st2 = SuffixTree::new();
+    let input: Vec<char> = "xaccxaca".chars().collect();
+    for c in input
+    {
+        st2.extend(c);
+        println!("{}", st2);
+    }
 }

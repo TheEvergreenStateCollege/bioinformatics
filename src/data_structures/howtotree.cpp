@@ -15,7 +15,7 @@ struct Node
     int start;
     int end;
     int suffix_link;
-    int next[ALPHABET_SIZE];
+    int children[ALPHABET_SIZE];
 
     Node(int start, int end = INF) : start(start), end(end), suffix_link(0) {}
     Node() : start(-1), end(-1), suffix_link(0) {}
@@ -34,9 +34,9 @@ class SuffixTree
     int position;
     int need_suffix_link;
     int tree_remainder;
-    int active_node;
-    int active_edge;
-    int active_length;
+    int node_active;
+    int edge_active;
+    int length_active;
 
 public:
     SuffixTree()
@@ -44,10 +44,10 @@ public:
         last_added = 1,
         need_suffix_link = 0,
         tree_remainder = 0,
-        active_edge = 0,
-        active_length = 0,
+        edge_active = 0,
+        length_active = 0,
         position = -1,
-        active_node = 1,
+        node_active = 1,
         nodes[0] = Node(0, 0);
         nodes[1] = Node(-1, -1);
     }
@@ -56,12 +56,12 @@ public:
     {
         Node nd = Node(start, end);
         for (int i = 0; i < ALPHABET_SIZE; i++)
-            nd.next[i] = 0;
+            nd.children[i] = 0;
         nodes[++last_added] = nd;
         return last_added;
     }
 
-    void add_SL(int node)
+    void add_suffix_link(int node)
     {
         if (need_suffix_link > 0)
             nodes[need_suffix_link].suffix_link = node;
@@ -70,11 +70,11 @@ public:
 
     bool walk_down(int node)
     {
-        if (active_length >= nodes[node].edge_length(position))
+        if (length_active >= nodes[node].edge_length(position))
         {
-            active_edge += nodes[node].edge_length(position);
-            active_length -= nodes[node].edge_length(position);
-            active_node = node;
+            edge_active += nodes[node].edge_length(position);
+            length_active -= nodes[node].edge_length(position);
+            node_active = node;
             return true;
         }
         return false;
@@ -87,42 +87,42 @@ public:
         tree_remainder++;
         while (tree_remainder > 0)
         {
-            if (active_length == 0)
-                active_edge = position;
-            if (nodes[active_node].next[(int)text[active_edge]] == 0)
+            if (length_active == 0)
+                edge_active = position;
+            if (nodes[node_active].children[(int)text[edge_active]] == 0)
             {
                 int leaf = new_node(position);
-                nodes[active_node].next[(int)text[active_edge]] = leaf;
-                add_SL(active_node); // rule 2
+                nodes[node_active].children[(int)text[edge_active]] = leaf;
+                add_suffix_link(node_active); // rule 2
             }
             else
             {
-                int nxt = nodes[active_node].next[(int)text[active_edge]];
-                if (walk_down(nxt))
+                int next = nodes[node_active].children[(int)text[edge_active]];
+                if (walk_down(next))
                     continue; // observation 2
-                if (text[nodes[nxt].start + active_length] == c)
+                if (text[nodes[next].start + length_active] == c)
                 { // observation 1
-                    active_length++;
-                    add_SL(active_node); // observation 3
+                    length_active++;
+                    add_suffix_link(node_active); // observation 3
                     break;
                 }
-                int split = new_node(nodes[nxt].start, nodes[nxt].start + active_length);
-                nodes[active_node].next[(int)text[active_edge]] = split;
+                int split = new_node(nodes[next].start, nodes[next].start + length_active);
+                nodes[node_active].children[(int)text[edge_active]] = split;
 
                 int leaf = new_node(position);
-                nodes[split].next[(int)c] = leaf;
-                nodes[nxt].start += active_length;
-                nodes[split].next[(int)text[nodes[nxt].start]] = nxt;
-                add_SL(split); // rule 2
+                nodes[split].children[(int)c] = leaf;
+                nodes[next].start += length_active;
+                nodes[split].children[(int)text[nodes[next].start]] = next;
+                add_suffix_link(split); // rule 2
             }
             tree_remainder--;
-            if (active_node == ROOT && active_length > 0)
+            if (node_active == ROOT && length_active > 0)
             { // rule 1
-                active_length--;
-                active_edge = position - tree_remainder + 1;
+                length_active--;
+                edge_active = position - tree_remainder + 1;
             }
             else
-                active_node = nodes[active_node].suffix_link > 0 ? nodes[active_node].suffix_link : ROOT; // rule 3
+                node_active = nodes[node_active].suffix_link > 0 ? nodes[node_active].suffix_link : ROOT; // rule 3
         }
     }
     void print()
@@ -171,7 +171,7 @@ public:
             bool comma_flag = false;
             for (int j = 0; j < ALPHABET_SIZE; j++)
             {
-                if (n.next[j] != 0)
+                if (n.children[j] != 0)
                 {
                     if (comma_flag)
                     {
@@ -181,7 +181,7 @@ public:
                     {
                         comma_flag = true;
                     }
-                    printf("%d", n.next[j]);
+                    printf("%d", n.children[j]);
                 }
             }
             printf("]");
@@ -196,11 +196,13 @@ int main()
     struct SuffixTree st = SuffixTree();
     string input = "xaccxaca$";
     const char *c_string = input.c_str();
-    for (int i = 0; i < (int)input.length(); i++)
+    int i = 0;
+    while (c_string[i] != NULL)
     {
         st.extend(c_string[i]);
-        st.print();
+        i++;
     }
+    st.print();
     return 0;
 }
 // The end value of nodes in actually exclusive, so internal nodes don't include
