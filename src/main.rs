@@ -37,7 +37,7 @@ fn main() {
     //println!("{:?}", st.find_substring("❤️"));
 
     let mut st2 = SuffixTree::new();
-    let input: Vec<char> = "xaccxaca".chars().collect();
+    let input: Vec<char> = "xefisbfgouerfiuwehiuwerfiweuhfwioufxefxfis".chars().collect();
     for c in input
     {
         st2.extend(c);

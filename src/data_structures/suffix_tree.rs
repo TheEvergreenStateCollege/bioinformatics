@@ -18,9 +18,6 @@ impl Node
 
     fn edge_length(&self, position: usize) -> usize
     {
-        println!("End {}", self.end);
-        println!("Pos {}", position);
-        println!("Start {}", self.start);
         std::cmp::min(self.end, position + 1) - self.start
     }
 }
@@ -79,7 +76,7 @@ impl SuffixTree
     
     fn walk_down(&mut self, node: usize) -> bool
     {
-        if self.edge_active >= self.nodes[node].edge_length(self.position)
+        if self.length_active >= self.nodes[node].edge_length(self.position)
         {
             self.edge_active += self.nodes[node].edge_length(self.position);
             dbg!(self.length_active);

@@ -194,7 +194,7 @@ public:
 int main()
 {
     struct SuffixTree st = SuffixTree();
-    string input = "xaccxaca$";
+    string input = "xefisbfgouerfiuwehiuwerfiweuhfwioufxefxfis";
     const char *c_string = input.c_str();
     int i = 0;
     while (c_string[i] != NULL)
