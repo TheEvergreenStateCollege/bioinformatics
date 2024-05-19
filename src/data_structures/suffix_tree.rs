@@ -27,10 +27,10 @@ impl Node {
 
 pub struct SuffixTree {
     nodes: Vec<Node>,
+    empty_node_indicies: Vec<usize>,
     text: Vec<u8>,
     alphabet: Vec<u8>,
     alphabet_indexer: Vec<Option<usize>>,
-    last_added: usize,
     position: usize,
     need_suffix_link: usize,
     tree_remainder: usize,
@@ -43,10 +43,10 @@ impl SuffixTree {
     pub fn new() -> SuffixTree {
         let mut st = SuffixTree {
             nodes: Vec::new(),
+            empty_node_indicies: Vec::new(),
             text: Vec::new(),
             alphabet: Vec::new(),
             alphabet_indexer: vec![None; u8::MAX as usize],
-            last_added: 0,
             need_suffix_link: 0,
             tree_remainder: 0,
             edge_active: 0,
@@ -55,16 +55,20 @@ impl SuffixTree {
             node_active: ROOT,
             first_loop_flag: true,
         };
-        // st.nodes.push(Node::new(0, 0, 0)); // Placeholder node
         st.nodes.push(Node::new(0, 0, 0)); // Root node
         st
     }
 
     fn new_node(&mut self, start: usize, end: usize) -> usize {
         let nd = Node::new(start, end, self.alphabet.len());
-        self.last_added += 1;
-        self.nodes.push(nd);
-        return self.last_added;
+        if !self.empty_node_indicies.is_empty() {
+            let index = self.empty_node_indicies.pop().unwrap();
+            self.nodes[index] = nd;
+            return index;
+        } else {
+            self.nodes.push(nd);
+            return self.nodes.len() - 1;
+        }
     }
 
     fn char_index(&self, c: u8) -> usize {
@@ -80,10 +84,30 @@ impl SuffixTree {
     }
 
     fn add_suffix_link(&mut self, node: usize) {
-        if self.need_suffix_link > 0 {
+        if self.need_suffix_link != 0 {
             self.nodes[self.need_suffix_link].suffix_link = node;
+            self.delete_children(self.need_suffix_link);
+            self.nodes[self.need_suffix_link].children = self.nodes[node].children.clone();
         }
         self.need_suffix_link = node;
+    }
+
+    fn delete_children(&mut self, node: usize) {
+        let mut safety: usize = 0;
+        let mut stack: Vec<usize> = Vec::new();
+        self.nodes[node].children.iter().filter(|x| **x != 0).map(|x| *x).collect::<Vec<usize>>().clone_into(&mut stack); //disgusting functional style hacks
+        while !stack.is_empty() {
+            let current: usize = stack.pop().unwrap();
+            stack.extend(self.nodes[current].children.iter().filter(|x| **x != 0));
+            self.empty_node_indicies.push(current); // Marks node for replacement later
+            dbg!(&stack);
+            println!("{}", self);
+
+            safety += 1;
+            if safety > 5 {
+                panic!("infinite loop");
+            }
+        }
     }
 
     fn walk_down(&mut self, node: usize) -> bool {
@@ -190,12 +214,7 @@ impl fmt::Display for SuffixTree {
 }
 impl fmt::Display for Node {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let start: String = match self.start {
-            0 => "Root".to_string(),
-            x => x.to_string(),
-        };
         let end: String = match self.end {
-            0 => "Root".to_string(),
             INF => "End".to_string(),
             x => x.to_string(),
         };
@@ -204,13 +223,15 @@ impl fmt::Display for Node {
             x => x.to_string(),
         };
         let children: Vec<&usize> = self.children.iter().filter(|x| **x != 0).collect();
-        write!(f, "{:<6} | {:<6} | {:<6} | {:?}", start, end, sl, children)
+        write!(
+            f,
+            "{:<6} | {:<6} | {:<6} | {:?}",
+            self.start, end, sl, children
+        )
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-
-
 }
