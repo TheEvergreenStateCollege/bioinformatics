@@ -104,7 +104,7 @@ impl SuffixTree {
             false => s.position += 1,
         }
 
-        s.text.push(char_to_add); // I think this cast will fail for multi-byte chars
+        s.text.push(char_to_add);
         if !s.alphabet.contains(&char_to_add) {
             s.extend_alphabet(char_to_add);
         }

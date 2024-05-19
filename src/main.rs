@@ -30,7 +30,7 @@ fn main() {
 
     let mut st2 = SuffixTree::new();
     // let input: Vec<char> = transcriptome.get_bases().chars().collect();
-    let input: Vec<char> = "xefisbfgouerfiuwehiuwerfiweuhfwioufxefxfis".chars().collect();
+    let input: Vec<char> = "xaccxaca$".chars().collect();
     for c in input
     {
         st2.extend(c as u8);
