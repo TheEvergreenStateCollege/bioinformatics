@@ -21,18 +21,16 @@ fn main() {
     // let cli = Cli::parse();
     // human_panic::setup_panic!();
 
-    let read_dir = std::path::Path::new("data/reads/");
+    // let read_dir = std::path::Path::new("data/reads/");
+    // let files = read_directory_to_string(read_dir).expect("failed to read fragment files");
+    // let fragments = parse_file(&files).expect("failed to parse fragments");
 
-    let files = read_directory_to_string(read_dir).expect("failed to read fragment files");
-    let fragments = parse_file(&files).expect("failed to parse fragments");
-
-    let genome = parse_genome(read_to_string("data/ref_genome.fna").expect("failed to read genome file"));
-    let transcriptome = Transcriptome::new(&genome);
-    //let trans_array = FragmentArray::new(transcriptome.get_bases(), 50);
-    //align_fragments(&fragments, &trans_array, &transcriptome);
+    // let genome = parse_genome(read_to_string("data/ref_genome.fna").expect("failed to read genome file"));
+    // let transcriptome = Transcriptome::new(&genome);
 
     let mut st2 = SuffixTree::new();
-    let input: Vec<char> = transcriptome.get_bases().chars().collect();
+    // let input: Vec<char> = transcriptome.get_bases().chars().collect();
+    let input: Vec<char> = "xefisbfgouerfiuwehiuwerfiweuhfwioufxefxfis".chars().collect();
     for c in input
     {
         st2.extend(c as u8);
