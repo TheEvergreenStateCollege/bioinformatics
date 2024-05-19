@@ -1,4 +1,5 @@
 #![allow(dead_code, unused_variables, unused_imports)]
+use bincode::de::read;
 use clap::{command, Parser};
 use rusty_plants::{
     algorithms::better_align::align_fragments,
@@ -18,29 +19,23 @@ struct Cli {
 
 fn main() {
     // let cli = Cli::parse();
+    // human_panic::setup_panic!();
 
-    human_panic::setup_panic!();
+    let read_dir = std::path::Path::new("data/reads/");
 
-    // let files =
-    //     read_directory_to_string(&cli.fragments_dir).expect("failed to read fragment files");
-    // let fragments = parse_file(&files).expect("failed to parse fragments");
+    let files = read_directory_to_string(read_dir).expect("failed to read fragment files");
+    let fragments = parse_file(&files).expect("failed to parse fragments");
 
-    // let genome = parse_genome(read_to_string(cli.genome_path).expect("failed to read genome file"));
-    // let transcriptome = Transcriptome::new(&genome);
+    let genome = parse_genome(read_to_string("data/ref_genome.fna").expect("failed to read genome file"));
+    let transcriptome = Transcriptome::new(&genome);
     //let trans_array = FragmentArray::new(transcriptome.get_bases(), 50);
     //align_fragments(&fragments, &trans_array, &transcriptome);
 
-    // xaccxaca
-    //let st = SuffixTree::new("xaccxaca");
-
-    //println!("{}", &st);
-    //println!("{:?}", st.find_substring("❤️"));
-
     let mut st2 = SuffixTree::new();
-    let input: Vec<char> = "xefisbfgouerfiuwehiuwerfiweuhfwioufxefxfis".chars().collect();
+    let input: Vec<char> = transcriptome.get_bases().chars().collect();
     for c in input
     {
-        st2.extend(c);
-        println!("{}", st2);
+        st2.extend(c as u8);
     }
+    println!("{}", st2);
 }
