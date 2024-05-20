@@ -13,7 +13,3 @@ directories = "5.0.1"
 human-panic = "2.0.0"
 rayon = "1.10.0"
 serde = { version = "1.0.198", features = ["derive"] }
-
-[[bin]]
-name = "cli"
-src = "src/bin/cli.rs"
