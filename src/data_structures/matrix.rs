@@ -12,6 +12,7 @@ impl<T> Matrix<T>
 where
     T: Clone,
 {
+    /// Constructs a new `Matrix` with the given width and height.
     pub fn new(width: usize, height: usize) -> Self {
         Matrix {
             cells: vec![None; width * height],
@@ -20,7 +21,8 @@ where
         }
     }
 
-    /// Get the value of the cell at position (x, y)
+    /// Get the value of the cell at position (x, y). Returns `None` if the position is out of
+    /// bounds.
     pub fn get(&self, x: usize, y: usize) -> Option<&T> {
         match self.cells.get((y * self.width) + x) {
             // Out of bounds
@@ -32,6 +34,7 @@ where
         }
     }
 
+    /// Sets the cell value at the position (x, y). Panics if the position is out of bounds.
     pub fn set(&mut self, x: usize, y: usize, value: T) {
         if y >= self.height || x >= self.width {
             panic!("Out of bounds");
@@ -93,6 +96,7 @@ mod tests {
     #[test]
     fn test_display() {
         let mut m: Matrix<u8> = Matrix::new(3, 3);
+
         m.set(0, 0, 1);
         m.set(1, 0, 2);
         m.set(2, 0, 3);
