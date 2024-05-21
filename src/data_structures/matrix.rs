@@ -1,26 +1,28 @@
 use std::fmt;
 
+/// A two dimensional array
 #[derive(Debug, PartialEq, Eq)]
-pub struct Array2D<T> {
+pub struct Matrix<T> {
     cells: Vec<Option<T>>,
     width: usize,
     height: usize,
 }
 
-impl<T> Array2D<T>
+impl<T> Matrix<T>
 where
     T: Clone,
 {
     pub fn new(width: usize, height: usize) -> Self {
-        Array2D {
+        Matrix {
             cells: vec![None; width * height],
             width,
             height,
         }
     }
 
-    pub fn get(&self, row: usize, col: usize) -> Option<&T> {
-        match self.cells.get((row * self.width) + col) {
+    /// Get the value of the cell at position (x, y)
+    pub fn get(&self, x: usize, y: usize) -> Option<&T> {
+        match self.cells.get((y * self.width) + x) {
             // Out of bounds
             None => None,
             // Nothing in the cell
@@ -30,16 +32,16 @@ where
         }
     }
 
-    pub fn set(&mut self, row: usize, col: usize, value: T) {
-        if row >= self.height || col >= self.width {
+    pub fn set(&mut self, x: usize, y: usize, value: T) {
+        if y >= self.height || x >= self.width {
             panic!("Out of bounds");
         } else {
-            self.cells[(row * self.width) + col] = Some(value);
+            self.cells[(y * self.width) + x] = Some(value);
         }
     }
 }
 
-impl<T> fmt::Display for Array2D<T>
+impl<T> fmt::Display for Matrix<T>
 where
     T: fmt::Display,
 {
@@ -64,12 +66,12 @@ mod tests {
 
     #[test]
     fn test_constructor() {
-        Array2D::<i32>::new(3, 3);
+        Matrix::<u8>::new(3, 3);
     }
 
     #[test]
     fn test_set_get() {
-        let mut a: Array2D<i32> = Array2D::new(3, 3);
+        let mut a: Matrix<u8> = Matrix::new(3, 3);
         a.set(0, 0, 0);
 
         assert_eq!(&0, a.get(0, 0).unwrap());
@@ -78,31 +80,31 @@ mod tests {
     #[test]
     #[should_panic]
     fn test_set_out_of_bounds() {
-        let mut a: Array2D<i32> = Array2D::new(3, 3);
-        a.set(4, 4, 0);
+        let mut m: Matrix<u8> = Matrix::new(3, 3);
+        m.set(4, 4, 0);
     }
 
     #[test]
     fn test_get_out_of_bounds() {
-        let a: Array2D<i32> = Array2D::new(3, 3);
-        assert_eq!(None, a.get(4, 4));
+        let m: Matrix<u8> = Matrix::new(3, 3);
+        assert_eq!(None, m.get(4, 4));
     }
 
     #[test]
     fn test_display() {
-        let mut a: Array2D<i32> = Array2D::new(3, 3);
-        a.set(0, 0, 1);
-        a.set(0, 1, 2);
-        a.set(0, 2, 3);
+        let mut m: Matrix<u8> = Matrix::new(3, 3);
+        m.set(0, 0, 1);
+        m.set(1, 0, 2);
+        m.set(2, 0, 3);
 
-        a.set(1, 0, 4);
-        a.set(1, 1, 5);
-        a.set(1, 2, 6);
+        m.set(0, 1, 4);
+        m.set(1, 1, 5);
+        m.set(2, 1, 6);
 
-        a.set(2, 0, 7);
-        a.set(2, 1, 8);
-        a.set(2, 2, 9);
+        m.set(0, 2, 7);
+        m.set(1, 2, 8);
+        m.set(2, 2, 9);
 
-        assert_eq!("1 2 3 \n4 5 6 \n7 8 9 \n", a.to_string());
+        assert_eq!("1 2 3 \n4 5 6 \n7 8 9 \n", m.to_string());
     }
 }
