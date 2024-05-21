@@ -1,8 +1,10 @@
 #![allow(dead_code, unused_variables, unused_imports)]
 use clap::{command, Parser};
 use rusty_plants::{
-    algorithms::better_align::align_fragments,
-    data_structures::{k_mer_array::FragmentArray, transcriptome::Transcriptome, suffix_trees::SuffixTree},
+    // algorithms::better_align::align_fragments,
+    data_structures::{
+        k_mer_array::FragmentArray, suffix_trees::SuffixTree, transcriptome::Transcriptome,
+    },
     file_io::fasta::*,
 };
 use std::{fs::read_to_string, path::PathBuf};
