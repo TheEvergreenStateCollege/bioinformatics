@@ -29,11 +29,17 @@ fn main() {
     // let transcriptome = Transcriptome::new(&genome);
 
     let mut st2 = SuffixTree::new();
+
     // let input: Vec<char> = transcriptome.get_bases().chars().collect();
-    let input: Vec<char> = "xaccxaca$".chars().collect();
+    let input: Vec<char> = "xaaaaacaaaadaaaacd".chars().collect();
+    // println!("{}", genome.len());
+    // println!("{}", transcriptome.get_bases().len());
+    // let mut i = 0;
     for c in input
     {
         st2.extend(c as u8);
+        // i += 1;
+        // if i % 1_000_000 == 0 { println!("string length:{}, nodes: {}",i, st2.get_node_count()); }
     }
     println!("{}", st2);
 }
