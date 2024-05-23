@@ -1,3 +1,5 @@
+use std::ptr; //Rust analizer says so....
+use core::mem::ManuallyDrop; //this too
 use std::mem;
 use std::ptr::NonNull; 
 use std::alloc::{self, Layout};
@@ -36,11 +38,11 @@ impl<T> ByteVec<T> {
         //check if we have space
         if self.len == self.cap {
             //if not, grow
-            self.gorw();
+            self.grow();
         }
         //doms first unsafe rust, witness its glorry.
         unsafe {
-            ptr::write(self.ptr.as_ptr().add(self.len), elem);
+            ptr::write(self.ptr.as_ptr().add(self.len.into()), elem);
             //*(ptr + len) = elm
         }
         //increments self
@@ -50,13 +52,13 @@ impl<T> ByteVec<T> {
     pub fn pop(&mut self) -> Option<T> {
         //cant pop if it doesnt exist
         if self.len == 0 {
-            None
+            return None
         }
         //we decriment first???
         self.len -= 1;
         //yea, because we index at 0.
         unsafe{
-            Some(ptr::read(self.ptr.as_ptr().add(self.len)))
+            Some(ptr::read(self.ptr.as_ptr().add(self.len.into())))
             // ret = *(ptr + len); 
             // does this actually remove the value... 
             // or does it remove our ability to see it?
@@ -75,11 +77,11 @@ impl<T> ByteVec<T> {
         unsafe {
             // ptr::copy(src, dest, len): "copy from src to dest len elems"
             ptr::copy(
-                self.ptr.as_ptr().add(index),
-                self.ptr.as_ptr().add(index + 1),
-                self.len - index,
+                self.ptr.as_ptr().add(index.into()),
+                self.ptr.as_ptr().add((index + 1) as usize), //not sure why this one can 'as'
+                (self.len - index).into(),
             );
-            ptr::write(self.ptr.as_ptr().add(index), elem);
+            ptr::write(self.ptr.as_ptr().add(index.into()), elem);
             // *(ptr + index) = elm;
         }
         self.len += 1;
@@ -92,11 +94,11 @@ impl<T> ByteVec<T> {
         assert!(index < self.len, "index out of bounds");
         unsafe {
             self.len -= 1;
-            let result = ptr::read(self.ptr.as_ptr().add(index));
+            let result = ptr::read(self.ptr.as_ptr().add(index.into()));
             ptr::copy(
-                self.ptr.as_ptr().add(index + 1),
-                self.ptr.as_ptr().add(index),
-                self.len - index,
+                self.ptr.as_ptr().add((index + 1) as usize),
+                self.ptr.as_ptr().add(index.into()),
+                (self.len - index).into(),
             );
             result
         }
@@ -140,7 +142,7 @@ impl<T> Drop for ByteVec<T> {
             //removes all elements until pop returns None.
             //I think this is effectivly us promising it cannot be acssessed. 
             while let Some(_) = self.pop() {/*do nothing with it?*/} 
-            let layout = Layout::array::<T>(self.cap).unwrap();
+            let layout = Layout::array::<T>(self.cap.into()).unwrap();
             unsafe {
                 alloc::dealloc(self.ptr.as_ptr() as *mut u8, layout);
                 //notice this spessifies how many bytes were freeing
@@ -157,7 +159,7 @@ impl<T> Deref for ByteVec<T> {
     type Target = [T]; //Not totally sure what this is...
     fn deref(&self) -> &[T]{
         unsafe {
-            std::slice::from_raw_parts(self.ptr.as_ptr(), self.len)
+            std::slice::from_raw_parts(self.ptr.as_ptr(), self.len.into())
             //notice this is no different from mut. 
         }
     }
@@ -166,7 +168,7 @@ impl<T> Deref for ByteVec<T> {
 impl<T> DerefMut for ByteVec<T> {
     fn deref_mut(&mut self) -> &mut [T]{
         unsafe {
-            std::slice::from_raw_parts(self.ptr.as_ptr(), self.len)
+            std::slice::from_raw_parts(self.ptr.as_ptr(), (self.len).into())
         }
     }    
 }
