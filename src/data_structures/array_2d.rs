@@ -11,6 +11,15 @@ impl<T> Array2D<T>
 where
     T: Clone,
 {
+
+    pub fn new_with_default(width: usize, height: usize, default_value: T) -> Self {
+        Array2D {
+            cells: vec![Some(default_value); width * height],
+            width,
+            height,
+        }
+    }
+
     pub fn new(width: usize, height: usize) -> Self {
         Array2D {
             cells: vec![None; width * height],
