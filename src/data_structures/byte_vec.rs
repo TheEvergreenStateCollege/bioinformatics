@@ -1,6 +1,6 @@
 use std::ptr; //Rust analizer says so....
-use core::mem::ManuallyDrop; //this too
 use std::mem;
+use core::mem::ManuallyDrop; //this too
 use std::ptr::NonNull; 
 use std::alloc::{self, Layout};
 
@@ -9,18 +9,27 @@ use std::ops::DerefMut;
 
 //Our slightly smaller vec
 pub struct ByteVec<T> {
-    ptr: NonNull<T>,
-    cap: u8,
+    buf: RawVec<T>,
+    //cap: u8, // now held in RawVec...
     len: u8,
 }
 
 //to make an interator, notice this isnt an include (use::...)
 pub struct IntoIter<T> {
-    buf: NonNull<T>,
-    cap: u8,
+    _buf: RawVec<T>,
+    //cap: u8, now held in raw vec...
     start: *const T,
     end:   *const T,
 }
+
+//our internal actual vector I guess... 
+struct RawVec<T> {
+    ptr: NonNull<T>,
+    cap: u8,
+}
+//Not in love with this.. cap is now here instead of the base vector, this is 
+//bad for design reasons but also disallows us to do bit shifting shinanigens.
+
 
 impl<T> ByteVec<T> {
 
@@ -63,6 +72,15 @@ impl<T> ByteVec<T> {
             // does this actually remove the value... 
             // or does it remove our ability to see it?
         }
+    }
+
+    //private functions
+    fn ptr(&self) -> *mut T {
+        self.buf.ptr.as_ptr()
+    }
+
+    fn cap(&self) -> usize {
+        self.buf.cap
     }
 
     pub fn insert(&mut self, index: u8, elem: T) {
@@ -117,7 +135,7 @@ impl<T> ByteVec<T> {
         };
 
         //isize is actually way larger then our tiny vec, should fix.
-        assert!(new_layout.size() <= isize::MAX as usize, "Allocation too large");
+        assert!(new_layout.size() <= u8::MAX as usize, "Allocation too large");
 
         let new_ptr = if self.cap == 0 {
             unsafe { alloc::alloc(new_layout) }
@@ -134,7 +152,16 @@ impl<T> ByteVec<T> {
         self.cap = new_cap;
     }
 }
-//dealocate
+
+impl<T> Drop for ByteVec<T> {
+    fn drop(&mut self) {
+        while let Some(_) = self.pop() {}
+        // deallocation is handled by RawVec
+    }
+}
+
+//dealocate 
+/*
 impl<T> Drop for ByteVec<T> {
     fn drop(&mut self){
         //if cap is zero theres nothing to dealocate
@@ -152,6 +179,7 @@ impl<T> Drop for ByteVec<T> {
         }
     }
 }
+*/
 
 //acssess functions
 //the idea of needing to design this is funny to me.
@@ -182,7 +210,7 @@ impl<T> IntoIterator for ByteVec<T> {
         let vec = ManuallyDrop::new(self);
         //this is saying were going to handle this..
         
-        // Can't destructure Vec since it's Drop
+        // Can't destructure Vec since it's Drop..?
         let ptr = vec.ptr;
         let cap = vec.cap;
         let len = vec.len;
@@ -203,7 +231,7 @@ impl<T> IntoIterator for ByteVec<T> {
     }
 }
 
-//Dealocate!
+/* no longer in use due to RawVec(?) */
 impl<T> Drop for IntoIter<T> {
     fn drop(&mut self) {
         if self.cap != 0 {
@@ -217,6 +245,7 @@ impl<T> Drop for IntoIter<T> {
         }
     }
 }
+//*/
 
 //forward
 impl<T> Iterator for IntoIter<T> {
@@ -254,3 +283,65 @@ impl<T> DoubleEndedIterator for IntoIter<T> {
     }
 }
 
+unsafe impl<T: Send> Send for RawVec<T> {}
+unsafe impl<T: Sync> Sync for RawVec<T> {}
+
+//This will probably need the most amount of editing. 
+impl<T> RawVec<T> {
+    fn new() -> Self {
+        assert!(mem::size_of::<T>() != 0, "TODO: implement ZST support");
+        RawVec {
+            ptr: NonNull::dangling(),
+            cap: 0,
+        }
+    }
+
+    fn grow(&mut self) {
+        // This can't overflow because we ensure self.cap <= isize::MAX. 
+        //says the original code.. but that is not true for us as of right now. 
+        let new_cap = if self.cap == 0 {
+            1 
+        } else {
+            2 * self.cap.into() //into maybe not needed?
+        }; 
+
+        // Layout::array checks that the number of bytes is <= usize::MAX,
+        // but this is redundant since old_layout.size() <= isize::MAX,
+        // so the `unwrap` should never fail.
+        let new_layout = Layout::array::<T>(new_cap).unwrap();
+
+        // Ensure that the new allocation doesn't exceed `isize::MAX` bytes.
+        // we dont want isize::MAX per say.. not sure how to fix that. its too large
+        assert!(new_layout.size() <= u8::MAX as usize, "Allocation too large"); // test if u8::MAX works.. probs wont.
+
+        let new_ptr = if self.cap == 0 {
+            unsafe { 
+                alloc::alloc(new_layout) 
+            }
+        } else {
+            let old_layout = Layout::array::<T>(self.cap).unwrap();
+            let old_ptr = self.ptr.as_ptr() as *mut u8;
+            unsafe { 
+                alloc::realloc(old_ptr, old_layout, new_layout.size()) 
+            }
+        };
+
+        // If allocation fails, `new_ptr` will be null, in which case we abort.
+        self.ptr = match NonNull::new(new_ptr as *mut T) {
+            Some(p) => p,
+            None => alloc::handle_alloc_error(new_layout),
+        };
+        self.cap = new_cap;
+    }
+}
+
+impl<T> Drop for RawVec<T> {
+    fn drop(&mut self) {
+        if self.cap != 0 {
+            let layout = Layout::array::<T>(self.cap).unwrap();
+            unsafe {
+                alloc::dealloc(self.ptr.as_ptr() as *mut u8, layout);
+            }
+        }
+    }
+}
