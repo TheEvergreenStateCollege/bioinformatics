@@ -42,6 +42,14 @@ where
             self.cells[(y * self.width) + x] = Some(value);
         }
     }
+
+    pub fn width(&self) -> usize {
+        self.width
+    }
+
+    pub fn height(&self) -> usize {
+        self.height
+    }
 }
 
 impl<T> fmt::Display for Matrix<T>
