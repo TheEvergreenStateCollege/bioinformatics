@@ -1,7 +1,7 @@
 #![allow(dead_code, unused_variables, unused_imports)]
 use clap::{command, Parser};
 use rusty_plants::{
-    // algorithms::better_align::align_fragments,
+    algorithms::edit_distance::edit_distance,
     data_structures::{
         k_mer_array::FragmentArray, suffix_trees::SuffixTree, transcriptome::Transcriptome,
     },
@@ -36,4 +36,5 @@ fn main() {
     let st = SuffixTree::new("xaccxaca");
     //println!("{}", &st);
     //println!("{:?}", st.find_substring("❤️"));
+    println!("{}", edit_distance("xab", "xad"));
 }

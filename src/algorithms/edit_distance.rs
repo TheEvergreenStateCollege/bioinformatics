@@ -1,7 +1,8 @@
 use crate::data_structures::matrix::Matrix;
 
-pub fn edit_distance(s1: &str, s2: &str) -> u8 {
-    // An extra row and column is required for the base cases
+/// Return the minimum amount of changes needed to transform `s1` into `s2`.
+pub fn edit_distance(s1: &str, s2: &str) -> usize {
+    // An extra row and column are required for the base cases
     let mut m = Matrix::<usize>::new(s2.len() + 1, s1.len() + 1);
 
     // Fill the rightmost column with base case values
@@ -16,9 +17,10 @@ pub fn edit_distance(s1: &str, s2: &str) -> u8 {
         m.set(col, s2.len(), value);
     }
 
-    for col in s1.len() - 1..-1 {}
+    // for col in s1.len() - 1..-1 {}
 
-    println!("{}", m);
-
-    0
+    // The answer is stored in the bottom right cell
+    // We know this won't panic, because the width and height of
+    // the matrix obviously can't be out of its own bounds.
+    *m.get(m.width() - 1, m.height() - 1).unwrap()
 }
