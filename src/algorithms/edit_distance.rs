@@ -34,7 +34,7 @@ pub fn edit_distance(s1: &str, s2: &str) -> usize {
             // cost.
             // We subtract 1 from the character index because the grid has the empty string as a
             // possibility in the first row and column.
-            let edit_distance = if s1.chars().nth(y - 1) != s2.chars().nth(x - 1) {
+            let edit_distance = if s1.as_bytes().get(y - 1) != s2.as_bytes().get(x - 1) {
                 min_cost + 1
             } else {
                 min_cost
