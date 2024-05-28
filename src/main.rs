@@ -36,5 +36,5 @@ fn main() {
     let st = SuffixTree::new("xaccxaca");
     //println!("{}", &st);
     //println!("{:?}", st.find_substring("❤️"));
-    println!("{}", edit_distance("xab", "xad"));
+    println!("{}", edit_distance("kitten", "sitting"));
 }

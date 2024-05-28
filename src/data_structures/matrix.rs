@@ -22,7 +22,7 @@ where
     }
 
     /// Get the value of the cell at position (x, y). Returns `None` if the position is out of
-    /// bounds.
+    /// bounds or if the cell is empty.
     pub fn get(&self, x: usize, y: usize) -> Option<&T> {
         match self.cells.get((y * self.width) + x) {
             // Out of bounds
