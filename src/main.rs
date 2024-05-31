@@ -2,8 +2,8 @@
 use bincode::de::read;
 use clap::{command, Parser};
 use rusty_plants::{
-    algorithms::better_align::align_fragments,
-    data_structures::{k_mer_array::FragmentArray, transcriptome::Transcriptome, suffix_tree::SuffixTree},
+    // algorithms::better_align::align_fragments,
+    data_structures::{transcriptome::Transcriptome, suffix_tree::SuffixTree},
     file_io::fasta::*,
 };
 use std::{fs::read_to_string, path::PathBuf};

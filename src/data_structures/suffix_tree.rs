@@ -1,4 +1,5 @@
 use core::fmt;
+use crate::data_structures::byte_vec::ByteVec;
 
 const INF: u32 = u32::MAX;
 const ROOT: u32 = 0;
@@ -7,16 +8,20 @@ struct Node {
     start: u32,
     end: u32,
     suffix_link: u32,
-    children: Vec<u32>,
+    children: ByteVec<u32>,
 }
 
 impl Node {
     fn new(start: u32, end: u32, child_count: u8) -> Node {
+        let mut children: ByteVec<u32> = ByteVec::new();
+        for _ in 0..child_count {
+            children.push(0_u32);
+        }
         Node {
             start,
             end,
             suffix_link: 0,
-            children: vec![0; child_count as usize],
+            children,
         }
     }
 
