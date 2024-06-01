@@ -158,20 +158,49 @@ void print_st()
         }
 
         printf(" [");
-        bool comma_flag = false;
+
+        // Number of bytes we need to represent children as bitmask, round up
+        int CHILD_BYTE_COUNT = (int)((ALPHABET_SIZE / sizeof(int)) + 0.5);
+        // Create a bitmask so we can sort children for printing out
+        int child_bit_mask[CHILD_BYTE_COUNT];
+        // Initialize to zero so we can set child bits later
+        for (int i = 0; i < CHILD_BYTE_COUNT; i += 1) {
+            child_bit_mask[i] = 0;
+        }
+
         for (int j = 0; j < ALPHABET_SIZE; j++)
         {
             if (n.next[j] != 0)
             {
-                if (comma_flag)
-                {
-                    printf(", ");
+                int child = n.next[j];
+                int which_byte = (int)(child / sizeof(int));
+                int which_bit = child % sizeof(int);
+                // printf("\t for child %d : which_byte %d which_bit %d \n", child, which_byte, which_bit);
+                child_bit_mask[which_byte] |= 1 << which_bit;
+            }
+        }
+
+        {
+            bool comma_flag = false;
+            for (int j = 0; j < ALPHABET_SIZE; j++)
+            {
+                int which_byte = (int)(j / sizeof(int));
+                int current_int = child_bit_mask[which_byte];
+                int which_bit = j % sizeof(int);
+                current_int >>= which_bit;
+                // printf("\t which_byte %d which_bit %d : byte %d \n", which_byte, which_bit, current_int);
+
+                if ((current_int & 0x1) == 0x1) {
+                    if (comma_flag)
+                    {
+                        printf(", ");
+                    }
+                    else
+                    {
+                        comma_flag = true;
+                    }
+                    printf("%d", j);
                 }
-                else
-                {
-                    comma_flag = true;
-                }
-                printf("%d", n.next[j]);
             }
         }
         printf("]");
