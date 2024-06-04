@@ -21,9 +21,15 @@ pub fn edit_distance(s1: &str, s2: &str) -> usize {
     // We start from 1 to skip over the base cases
     for y in 1..m.height() {
         for x in 1..m.width() {
-            let replace_cost = *m.get(x - 1, y - 1).unwrap();
-            let delete_cost = *m.get(x - 1, y).unwrap();
-            let insert_cost = *m.get(x, y - 1).unwrap();
+            let indicator = if s1.as_bytes().get(y - 1) != s2.as_bytes().get(x - 1) {
+                1
+            } else {
+                0
+            };
+
+            let replace_cost = *m.get(x - 1, y - 1).unwrap() + indicator;
+            let delete_cost = *m.get(x - 1, y).unwrap() + 1;
+            let insert_cost = *m.get(x, y - 1).unwrap() + 1;
 
             let min_cost = *[replace_cost, delete_cost, insert_cost]
                 .iter()
@@ -32,17 +38,11 @@ pub fn edit_distance(s1: &str, s2: &str) -> usize {
 
             // If characters are not equal we must perform an operation, which will add 1 to our
             // cost.
-            // We subtract 1 from the character index because the grid has the empty string as a
-            // possibility in the first row and column.
-            let edit_distance = if s1.as_bytes().get(y - 1) != s2.as_bytes().get(x - 1) {
-                min_cost + 1
-            } else {
-                min_cost
-            };
-
-            m.set(x, y, edit_distance);
+            m.set(x, y, min_cost);
         }
     }
+
+    println!("{}", m);
 
     // The answer is stored in the bottom right cell
     // We know this won't panic, because the width and height of

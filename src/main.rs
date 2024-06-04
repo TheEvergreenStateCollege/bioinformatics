@@ -33,8 +33,7 @@ fn main() {
     //align_fragments(&fragments, &trans_array, &transcriptome);
 
     // xaccxaca
-    let st = SuffixTree::new("xaccxaca");
     //println!("{}", &st);
     //println!("{:?}", st.find_substring("❤️"));
-    println!("{}", edit_distance("kitten", "sitting"));
+    edit_distance("kitten", "kittn");
 }
