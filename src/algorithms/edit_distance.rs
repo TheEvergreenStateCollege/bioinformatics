@@ -39,8 +39,6 @@ pub fn edit_distance(s1: &str, s2: &str) -> usize {
                 .min()
                 .expect("This array obviously isn't empty");
 
-            // If characters are not equal we must perform an operation, which will add 1 to our
-            // cost.
             m.set(x, y, min_cost);
         }
     }
