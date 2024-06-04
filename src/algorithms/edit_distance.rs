@@ -1,3 +1,5 @@
+use rayon::iter::ParallelBridge;
+
 use crate::data_structures::matrix::Matrix;
 
 /// Return the minimum amount of changes needed to transform `s1` into `s2`.
@@ -21,13 +23,14 @@ pub fn edit_distance(s1: &str, s2: &str) -> usize {
     // We start from 1 to skip over the base cases
     for y in 1..m.height() {
         for x in 1..m.width() {
-            let cost = if s1.as_bytes().get(x - 1) != s2.as_bytes().get(y - 1) {
-                1
-            } else {
-                0
-            };
-
-            let replace_cost = *m.get(x - 1, y - 1).unwrap() + cost;
+            // We only add 1 to the replace cost if the characters are different, because identical
+            // characters require no change.
+            let replace_cost = *m.get(x - 1, y - 1).unwrap()
+                + if s1.as_bytes().get(x - 1) == s2.as_bytes().get(y - 1) {
+                    0
+                } else {
+                    1
+                };
             let delete_cost = *m.get(x - 1, y).unwrap() + 1;
             let insert_cost = *m.get(x, y - 1).unwrap() + 1;
 
