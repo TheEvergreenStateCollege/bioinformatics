@@ -21,15 +21,13 @@ fn main() {
     // let cli = Cli::parse();
     // human_panic::setup_panic!();
 
-    let read_dir = std::path::Path::new("data/reads/");
-    let files = read_directory_to_string(read_dir).expect("failed to read fragment files");
-    let fragments = parse_file(&files).expect("failed to parse fragments");
-    let genome = parse_genome(read_to_string("data/ref_genome.fna").expect("failed to read genome file"));
-    let transcriptome = Transcriptome::new(&genome);
-    let mut st = suffix_tree::SuffixTree::new();
-    for c in transcriptome.get_bases().chars().map(|x| x as u8).take(80_000_000) {
-        st.extend(c);
-    }
+    // let read_dir = std::path::Path::new("data/reads/");
+    // let files = read_directory_to_string(read_dir).expect("failed to read fragment files");
+    // let fragments = parse_file(&files).expect("failed to parse fragments");
+    // let genome = parse_genome(read_to_string("data/ref_genome.fna").expect("failed to read genome file"));
+    // let transcriptome = Transcriptome::new(&genome);
+    //let trans_array = FragmentArray::new(transcriptome.get_bases(), 50);
+    //align_fragments(&fragments, &trans_array, &transcriptome);
 
     for i in 0..fragments.len() {
         let matches = align_fragment(&fragments[i], &st, &transcriptome);
