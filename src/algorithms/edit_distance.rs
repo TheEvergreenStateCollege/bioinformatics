@@ -1,5 +1,3 @@
-use rayon::iter::ParallelBridge;
-
 use crate::data_structures::matrix::Matrix;
 
 /// Return the minimum amount of changes needed to transform `s1` into `s2`.

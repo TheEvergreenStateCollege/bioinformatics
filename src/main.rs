@@ -1,6 +1,6 @@
 #![allow(dead_code, unused_variables, unused_imports)]
 use clap::{command, Parser};
-use rusty_plants::{
+use smarty_plants::{
     algorithms::edit_distance::edit_distance,
     data_structures::{
         k_mer_array::FragmentArray, suffix_trees::SuffixTree, transcriptome::Transcriptome,

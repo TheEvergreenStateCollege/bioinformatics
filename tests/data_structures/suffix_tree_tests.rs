@@ -1,13 +1,12 @@
 #[cfg(test)]
 mod suffix_tree_tests {
 
-    use rusty_plants::data_structures::suffix_trees::SuffixTree;
+    use smarty_plants::data_structures::suffix_trees::SuffixTree;
 
     #[test]
     fn create_suffix_trees_1() {
         let st = SuffixTree::new("x");
-        let expected_st =
-"Suffix tree for: x
+        let expected_st = "Suffix tree for: x
 1   |            | Root   | Root   | No SL  | [2]
 2   | x          | 0      | End    | No SL  | []
 ";
@@ -17,8 +16,7 @@ mod suffix_tree_tests {
     #[test]
     fn create_suffix_trees_2() {
         let st = SuffixTree::new("xaccxaca");
-        let expected_st =
-"Suffix tree for: xaccxaca
+        let expected_st = "Suffix tree for: xaccxaca
 1   |            | Root   | Root   | No SL  | [7, 9, 11]
 2   | cxaca      | 3      | End    | No SL  | []
 3   | cxaca      | 3      | End    | No SL  | []
@@ -35,3 +33,4 @@ mod suffix_tree_tests {
         assert_eq!(expected_st, format!("{}", st));
     }
 }
+
