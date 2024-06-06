@@ -31,7 +31,7 @@ struct RawVec<T> {
 }
 
 #[derive(Debug)]
-struct Drain<'a, T: 'a> {
+pub struct Drain<'a, T: 'a> {
     // Need to bound the lifetime here, so we do it with `&'a mut Vec<T>`
     // because that's semantically what we contain. We're "just" calling
     // `pop()` and `remove(0)`.

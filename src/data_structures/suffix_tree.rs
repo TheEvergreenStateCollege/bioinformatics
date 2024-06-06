@@ -96,24 +96,6 @@ impl SuffixTree {
         self.need_suffix_link = node;
     }
 
-    fn delete_children(&mut self, node: usize) {
-        let mut safety: usize = 0;
-        let mut stack: Vec<u32> = Vec::new();
-        self.nodes[node].children.iter().filter(|x| **x != 0).map(|x| *x).collect::<Vec<u32>>().clone_into(&mut stack); //disgusting functional style hacks
-        while !stack.is_empty() {
-            let current: u32 = stack.pop().unwrap();
-            stack.extend(self.nodes[current as usize].children.iter().filter(|x| **x != 0));
-            self.empty_node_indicies.push(current); // Marks node for replacement later
-            dbg!(&stack);
-            println!("{}", self);
-
-            safety += 1;
-            if safety > 5 {
-                panic!("infinite loop");
-            }
-        }
-    }
-
     fn walk_down(&mut self, node: u32) -> bool {
         if self.length_active >= self.nodes[node as usize].edge_length(self.position as u32) {
             self.edge_active += self.nodes[node as usize].edge_length(self.position as u32);

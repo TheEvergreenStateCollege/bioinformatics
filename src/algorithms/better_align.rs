@@ -1,6 +1,6 @@
 use crate::algorithms::edit_distance::string_compare_r;
 use crate::{
-    data_structures::{transcriptome::Transcriptome},
+    data_structures::transcriptome::Transcriptome,
     file_io::fasta::Fragment,
 };
 
