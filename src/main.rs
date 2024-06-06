@@ -1,7 +1,7 @@
 #![allow(dead_code, unused_variables, unused_imports)]
 use bincode::de::read;
 use clap::{command, Parser};
-use rusty_plants::{
+use smarty_plants::{
     // algorithms::better_align::align_fragments,
     data_structures::{transcriptome::Transcriptome, suffix_tree::SuffixTree},
     file_io::fasta::*,
