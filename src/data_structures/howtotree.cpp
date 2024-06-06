@@ -1,4 +1,5 @@
 #include <iostream>
+#include <algorithm>
 #include <stdio.h>
 #include <string>
 #include <limits.h>
@@ -125,6 +126,14 @@ public:
                 node_active = nodes[node_active].suffix_link > 0 ? nodes[node_active].suffix_link : ROOT; // rule 3
         }
     }
+
+    void sort_children()
+    {
+        for (int i = 0; i <= last_added; i++) {
+            std::sort(std::begin(nodes[i].children), std::end(nodes[i].children));
+        }
+    }
+
     void print()
     {
         printf("Suffix tree for: %s\n", text);
@@ -132,9 +141,9 @@ public:
         while (i < last_added + 1)
         {
             Node n = nodes[i];
-            printf("%-3d |", i);
+            printf("%-4d |", i);
             // Pointer arithmetic plus format specifier for substrings to print string slice
-            printf(" %-10.*s |", n.end - n.start, text + n.start);
+            printf(" %-20.*s |", n.end - n.start, text + n.start);
 
             if (n.start == -1)
             {
@@ -194,7 +203,7 @@ public:
 int main()
 {
     struct SuffixTree st = SuffixTree();
-    string input = "xefisbfgouerfiuwehiuwerfiweuhfwioufxefxfis";
+    string input = "xabxac";
     const char *c_string = input.c_str();
     int i = 0;
     while (c_string[i] != NULL)
@@ -202,6 +211,7 @@ int main()
         st.extend(c_string[i]);
         i++;
     }
+    st.sort_children();
     st.print();
     return 0;
 }

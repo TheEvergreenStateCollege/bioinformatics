@@ -1,4 +1,6 @@
-string length:32760000, nodes: 57215860
+string length:32760000, nodes: 57215860 
+
+Addendum: after optimizing the memory usage of the Suffix Tree, I was able to get up to 100,000,000 string length before freezing due to lack of memory
 
 The ratio of nodes to chars is 1.78 for the biggest tree I can make before running out of memory.
 It has a coverage of 32.7 megabases, which I think will be around half of the transcriptome.

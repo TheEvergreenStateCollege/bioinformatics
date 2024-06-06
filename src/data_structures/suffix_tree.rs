@@ -187,6 +187,41 @@ impl SuffixTree {
             }
         }
     }
+    
+    pub fn find_substring(&self, substring: &str) -> (u32, u32) { //match start, match end (exclusive)
+        let mut current_node = 0_u32; //start at root
+        let mut index_in_node = 0_u32; //Node has no substring it refers to
+        let mut chars_in_node = 0_u32;
+        let mut match_size = 0_u32;
+
+        let s = self;
+
+        for c in substring.as_bytes() {
+            if index_in_node == chars_in_node {
+                let child = s.nodes[current_node as usize].children[s.char_index(*c)];
+                if child == 0 {
+                    break;
+                }
+                match_size += 1;
+                current_node = child;
+                chars_in_node = match s.nodes[current_node as usize].end {
+                    INF => s.nodes[current_node as usize].edge_length(s.text.len() as u32),
+                    _ => s.nodes[current_node as usize].edge_length(0), // Placeholder 0 - get_length will not use position when working with internal nodes
+                };
+                index_in_node = 1;
+                continue;
+            }
+            if s.text[(s.nodes[current_node as usize].start + index_in_node) as usize] == *c {
+                index_in_node += 1;
+                match_size += 1;
+                continue;
+            }
+            break;
+        }
+        let end_of_match = s.nodes[current_node as usize].start + index_in_node;
+        return (end_of_match - match_size, end_of_match); //Will return (0,0) if no match is found
+    }
+
     pub fn get_node_count(&self) -> usize {
         self.nodes.len()
     }
@@ -237,4 +272,21 @@ impl fmt::Display for Node {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn find_substring_for_all_substrings() {
+        let mut st = SuffixTree::new();
+        let input_str = "xacaadaaacd";
+        let input: Vec<char> = input_str.chars().collect();
+        for c in input {
+            st.extend(c as u8);
+        }
+        for i in 0..input_str.len() + 1 {
+            for j in i+1..input_str.len() + 1 {
+                let test_str = &input_str[i..j];
+                println!("{} ", test_str);
+                assert_eq!((i as u32, j as u32), st.find_substring(test_str));
+            }
+        }
+    }
 }

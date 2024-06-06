@@ -6,7 +6,7 @@ use rusty_plants::{
     data_structures::{transcriptome::Transcriptome, suffix_tree::SuffixTree},
     file_io::fasta::*,
 };
-use std::{fs::read_to_string, path::PathBuf};
+use std::{fs::{self, read_to_string}, path::PathBuf};
 
 #[derive(Parser)]
 #[command(version, about)]
@@ -31,9 +31,10 @@ fn main() {
     let mut st2 = SuffixTree::new();
 
     // let input: Vec<char> = transcriptome.get_bases().chars().collect();
-    let input: Vec<char> = "xaaaaacaaaadaaaacd".chars().collect();
+    let input_str = "xaacaadaaacd";
+    let input: Vec<char> = input_str.chars().collect();
     // println!("{}", genome.len());
-    // println!("{}", transcriptome.get_bases().len());
+    // fs::write("data/transcriptome.txt", &transcriptome.get_bases()[..1000000]).unwrap();
     // let mut i = 0;
     for c in input
     {
@@ -42,4 +43,7 @@ fn main() {
         // if i % 1_000_000 == 0 { println!("string length:{}, nodes: {}",i, st2.get_node_count()); }
     }
     println!("{}", st2);
+    let res = st2.find_substring("caad");
+    println!("{:?}", res);
+    println!("{}", &input_str[res.0 as usize..res.1 as usize])
 }
