@@ -385,18 +385,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d626bb9dae77e28219937af045c257c28bfd3f69333c512553507f5f9798cb76"
 
 [[package]]
-name = "rusty-plants"
-version = "0.1.0"
-dependencies = [
- "bincode",
- "clap",
- "directories",
- "human-panic",
- "rayon",
- "serde",
-]
-
-[[package]]
 name = "serde"
 version = "1.0.198"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -422,6 +410,18 @@ version = "0.6.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "eb3622f419d1296904700073ea6cc23ad690adbd66f13ea683df73298736f0c1"
 dependencies = [
+ "serde",
+]
+
+[[package]]
+name = "smarty-plants"
+version = "0.1.0"
+dependencies = [
+ "bincode",
+ "clap",
+ "directories",
+ "human-panic",
+ "rayon",
  "serde",
 ]
 

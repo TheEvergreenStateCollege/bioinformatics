@@ -27,23 +27,7 @@ fn main() {
 
     // let genome = parse_genome(read_to_string("data/ref_genome.fna").expect("failed to read genome file"));
     // let transcriptome = Transcriptome::new(&genome);
+    //let trans_array = FragmentArray::new(transcriptome.get_bases(), 50);
+    //align_fragments(&fragments, &trans_array, &transcriptome);
 
-    let mut st2 = SuffixTree::new();
-
-    // let input: Vec<char> = transcriptome.get_bases().chars().collect();
-    let input_str = "xaacaadaaacd";
-    let input: Vec<char> = input_str.chars().collect();
-    // println!("{}", genome.len());
-    // fs::write("data/transcriptome.txt", &transcriptome.get_bases()[..1000000]).unwrap();
-    // let mut i = 0;
-    for c in input
-    {
-        st2.extend(c as u8);
-        // i += 1;
-        // if i % 1_000_000 == 0 { println!("string length:{}, nodes: {}",i, st2.get_node_count()); }
-    }
-    println!("{}", st2);
-    let res = st2.find_substring("caad");
-    println!("{:?}", res);
-    println!("{}", &input_str[res.0 as usize..res.1 as usize])
 }
