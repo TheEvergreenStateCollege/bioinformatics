@@ -24,7 +24,6 @@ fn main() {
     // let read_dir = std::path::Path::new("data/reads/");
     // let files = read_directory_to_string(read_dir).expect("failed to read fragment files");
     // let fragments = parse_file(&files).expect("failed to parse fragments");
-
     // let genome = parse_genome(read_to_string("data/ref_genome.fna").expect("failed to read genome file"));
     // let transcriptome = Transcriptome::new(&genome);
     //let trans_array = FragmentArray::new(transcriptome.get_bases(), 50);
