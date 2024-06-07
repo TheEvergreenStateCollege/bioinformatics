@@ -25,6 +25,7 @@ impl Node {
         }
     }
 
+    /// Returns the number of characters represented by a node
     fn edge_length(&self, position: u32) -> u32 {
         std::cmp::min(self.end, position + 1) - self.start
     }
@@ -186,9 +187,11 @@ impl SuffixTree {
                 }
                 match_size += 1;
                 current_node = child;
+
+                
                 chars_in_node = match s.nodes[current_node as usize].end {
                     INF => s.nodes[current_node as usize].edge_length(s.text.len() as u32),
-                    _ => s.nodes[current_node as usize].edge_length(9999999), // Placeholder 0 - get_length will not use position when working with internal nodes
+                    _ => s.nodes[current_node as usize].edge_length(INF - 1), //Using INF here ensures that the end value is used in edge_length
                 };
                 index_in_node = 1;
                 continue;
