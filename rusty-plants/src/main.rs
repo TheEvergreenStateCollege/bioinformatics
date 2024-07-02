@@ -20,14 +20,17 @@ struct Cli {
 fn main() {
     // let cli = Cli::parse();
     // human_panic::setup_panic!();
-
+    
     let read_dir = std::path::Path::new("../data/reads/");
     let files = read_directory_to_string(read_dir).expect("failed to read fragment files");
     let fragments = parse_file(&files).expect("failed to parse fragments");
     let genome = parse_genome(read_to_string("../data/ref_genome.fna").expect("failed to read genome file"));
     let transcriptome = Transcriptome::new(&genome);
     let mut st = suffix_tree::SuffixTree::new();
-    for c in transcriptome.get_bases().chars().map(|x| x as u8).take(80_000_000) {
+    for (i, c) in transcriptome.get_bases().chars().map(|x| x as u8).take(80_000_000).enumerate() {
+        if i % 1_000_000 == 0 {
+            println!("Added up to transcriptome character {} to suffix tree", i);
+        }
         st.extend(c);
     }
 
