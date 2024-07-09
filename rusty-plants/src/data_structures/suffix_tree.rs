@@ -1,5 +1,5 @@
-use core::fmt;
 use crate::data_structures::byte_vec::ByteVec;
+use core::fmt;
 
 const INF: u32 = u32::MAX;
 const ROOT: u32 = 0;
@@ -25,6 +25,7 @@ impl Node {
         }
     }
 
+    /// Returns the number of characters represented by a node
     fn edge_length(&self, position: u32) -> u32 {
         std::cmp::min(self.end, position + 1) - self.start
     }
@@ -99,10 +100,21 @@ impl SuffixTree {
     fn delete_children(&mut self, node: usize) {
         let mut safety: usize = 0;
         let mut stack: Vec<u32> = Vec::new();
-        self.nodes[node].children.iter().filter(|x| **x != 0).map(|x| *x).collect::<Vec<u32>>().clone_into(&mut stack); //disgusting functional style hacks
+        self.nodes[node]
+            .children
+            .iter()
+            .filter(|x| **x != 0)
+            .map(|x| *x)
+            .collect::<Vec<u32>>()
+            .clone_into(&mut stack); //disgusting functional style hacks
         while !stack.is_empty() {
             let current: u32 = stack.pop().unwrap();
-            stack.extend(self.nodes[current as usize].children.iter().filter(|x| **x != 0));
+            stack.extend(
+                self.nodes[current as usize]
+                    .children
+                    .iter()
+                    .filter(|x| **x != 0),
+            );
             self.empty_node_indicies.push(current); // Marks node for replacement later
             dbg!(&stack);
             println!("{}", self);
@@ -126,7 +138,7 @@ impl SuffixTree {
 
     pub fn extend(&mut self, char_to_add: u8) {
         let s = self;
-        
+
         s.text.push(char_to_add);
         if !s.alphabet.contains(&char_to_add) {
             s.extend_alphabet(char_to_add);
@@ -140,14 +152,19 @@ impl SuffixTree {
             if s.length_active == 0 {
                 s.edge_active = s.position as u32;
             }
-            if s.nodes[s.node_active as usize].children[s.char_index(s.text[s.edge_active as usize])] == 0 {
+            if s.nodes[s.node_active as usize].children
+                [s.char_index(s.text[s.edge_active as usize])]
+                == 0
+            {
                 let leaf = s.new_node(s.position as u32, INF);
 
                 let i = s.char_index(s.text[s.edge_active as usize]);
                 s.nodes[s.node_active as usize].children[i] = leaf;
                 s.add_suffix_link(s.node_active);
             } else {
-                let next = s.nodes[s.node_active as usize].children[s.char_index(s.text[s.edge_active as usize])] as usize;
+                let next = s.nodes[s.node_active as usize].children
+                    [s.char_index(s.text[s.edge_active as usize])]
+                    as usize;
                 if s.walk_down(next as u32) {
                     continue;
                 }
@@ -187,8 +204,9 @@ impl SuffixTree {
             }
         }
     }
-    
-    pub fn find_substring(&self, substring: &str) -> (u32, u32) { //match start, match end (exclusive)
+
+    pub fn find_substring(&self, substring: &str) -> (u32, u32) {
+        //match start, match end (exclusive)
         let mut current_node = 0_u32; //start at root
         let mut index_in_node = 0_u32; //Node has no substring it refers to
         let mut chars_in_node = 0_u32;
@@ -204,9 +222,10 @@ impl SuffixTree {
                 }
                 match_size += 1;
                 current_node = child;
+
                 chars_in_node = match s.nodes[current_node as usize].end {
                     INF => s.nodes[current_node as usize].edge_length(s.text.len() as u32),
-                    _ => s.nodes[current_node as usize].edge_length(9999999), // Placeholder 0 - get_length will not use position when working with internal nodes
+                    _ => s.nodes[current_node as usize].edge_length(INF - 1), //Using INF here ensures that the end value is used in edge_length
                 };
                 index_in_node = 1;
                 continue;
@@ -225,8 +244,6 @@ impl SuffixTree {
     pub fn get_node_count(&self) -> usize {
         self.nodes.len()
     }
-
-    
 }
 
 impl fmt::Display for SuffixTree {
@@ -241,10 +258,12 @@ impl fmt::Display for SuffixTree {
             match node.end {
                 0 => (),
                 INF => substring.push_str(
-                    &self.text.iter().map(|x| *x as char).collect::<String>()[node.start as usize..],
+                    &self.text.iter().map(|x| *x as char).collect::<String>()
+                        [node.start as usize..],
                 ),
                 x => substring.push_str(
-                    &self.text.iter().map(|x| *x as char).collect::<String>()[node.start as usize..x as usize],
+                    &self.text.iter().map(|x| *x as char).collect::<String>()
+                        [node.start as usize..x as usize],
                 ),
             }
             writeln!(f, "{:<3} | {:<10} | {}", index, substring, node)?;
@@ -295,7 +314,7 @@ mod tests {
     fn find_a_repeated() {
         find_substring("aaaaaaaaaa");
     }
-    
+
     fn find_substring(input_str: &str) {
         let mut st = SuffixTree::new();
         let input: Vec<char> = input_str.chars().collect();
@@ -303,7 +322,7 @@ mod tests {
             st.extend(c as u8);
         }
         for i in 0..input_str.len() {
-            for j in i+1..input_str.len() {
+            for j in i + 1..input_str.len() {
                 let test_str = &input_str[i..j];
                 let correct_start: u32 = input_str.find(test_str).unwrap_or(0) as u32;
                 let correct_end: u32 = correct_start + test_str.len() as u32;

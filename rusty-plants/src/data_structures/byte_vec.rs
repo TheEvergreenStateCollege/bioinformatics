@@ -1,7 +1,7 @@
-use std::ptr; //Rust analizer says so....
-use std::mem;
-use std::ptr::NonNull; 
 use std::alloc::{self, Layout};
+use std::mem;
+use std::ptr; //Rust analizer says so....
+use std::ptr::NonNull;
 
 use std::marker::PhantomData;
 
@@ -15,7 +15,6 @@ pub struct ByteVec<T> {
     //cap: u8, // now held in RawVec...
     len: u8,
 }
-
 
 #[derive(Debug)]
 struct RawValIter<T> {
@@ -31,7 +30,7 @@ struct RawVec<T> {
 }
 
 #[derive(Debug)]
-struct Drain<'a, T: 'a> {
+pub struct Drain<'a, T: 'a> {
     // Need to bound the lifetime here, so we do it with `&'a mut Vec<T>`
     // because that's semantically what we contain. We're "just" calling
     // `pop()` and `remove(0)`.
@@ -46,13 +45,11 @@ pub struct IntoIter<T> {
     iter: RawValIter<T>,
 }
 
-
 impl<T> ByteVec<T> {
-
     //public functions
     pub fn new() -> Self {
         assert!(mem::size_of::<T>() != 0, "we can't handle ZSTs");
-        Self { 
+        Self {
             buf: RawVec::new(),
             len: 0,
         }
@@ -65,7 +62,7 @@ impl<T> ByteVec<T> {
         */
     }
 
-    pub fn push(&mut self, elem: T){
+    pub fn push(&mut self, elem: T) {
         //check if we have space
         if self.len == self.cap() {
             //if not, grow
@@ -83,15 +80,15 @@ impl<T> ByteVec<T> {
     pub fn pop(&mut self) -> Option<T> {
         //cant pop if it doesnt exist
         if self.len == 0 {
-            return None
+            return None;
         }
         //we decriment first???
         self.len -= 1;
         //yea, because we index at 0.
-        unsafe{
+        unsafe {
             Some(ptr::read(self.ptr().add(self.len.into())))
-            // ret = *(ptr + len); 
-            // does this actually remove the value... 
+            // ret = *(ptr + len);
+            // does this actually remove the value...
             // or does it remove our ability to see it?
         }
     }
@@ -108,11 +105,13 @@ impl<T> ByteVec<T> {
     pub fn insert(&mut self, index: u8, elem: T) {
         // `<=` because it's valid to insert after everything
         assert!(index <= self.len, "index out of bounds");
-        if self.len == self.cap() { self.buf.grow(); }
+        if self.len == self.cap() {
+            self.buf.grow();
+        }
         //We only grow if we are exactly at our cap.. odd
         //I think this is if were inserting into an empty thing
-        //but I dont think that garentees this can place... 
-        //sorta a weird double check of if it can insert. 
+        //but I dont think that garentees this can place...
+        //sorta a weird double check of if it can insert.
         //Makes it the same behavior as push from empty.
         unsafe {
             // ptr::copy(src, dest, len): "copy from src to dest len elems"
@@ -128,7 +127,7 @@ impl<T> ByteVec<T> {
     }
 
     //this isnt a function I would expect to have to be honest.
-    //removes an index and then copys everything back. 
+    //removes an index and then copys everything back.
     pub fn remove(&mut self, index: u8) -> T {
         // `<` because it's *not* valid to remove after everything
         assert!(index < self.len, "index out of bounds");
@@ -152,57 +151,54 @@ impl<T> Drop for ByteVec<T> {
     }
 }
 
-
 //acssess functions
 //the idea of needing to design this is funny to me.
 impl<T> Deref for ByteVec<T> {
     type Target = [T]; //Not totally sure what this is...
-    fn deref(&self) -> &[T]{
+    fn deref(&self) -> &[T] {
         unsafe {
             std::slice::from_raw_parts(self.ptr(), self.len.into())
-            //notice this is no different from mut. 
+            //notice this is no different from mut.
         }
     }
 }
 
 impl<T> DerefMut for ByteVec<T> {
-    fn deref_mut(&mut self) -> &mut [T]{
+    fn deref_mut(&mut self) -> &mut [T] {
         unsafe {
-            std::slice::from_raw_parts_mut(self.ptr(), (self.len).into()) 
+            std::slice::from_raw_parts_mut(self.ptr(), (self.len).into())
             //notice that sneaky mut in the function name?
         }
-    }    
+    }
 }
-
 
 impl<T> IntoIterator for ByteVec<T> {
     type Item = T;
     type IntoIter = IntoIter<T>;
     fn into_iter(self) -> IntoIter<T> {
-        let (iter, buf) = unsafe {
-            (RawValIter::new(&self), ptr::read(&self.buf))
-        };
+        let (iter, buf) = unsafe { (RawValIter::new(&self), ptr::read(&self.buf)) };
 
         mem::forget(self);
 
-        IntoIter {
-            iter,
-            _buf: buf,
-        }
+        IntoIter { iter, _buf: buf }
     }
 }
-
-
 
 //drain impl, like itterators but it eats data.
 impl<'a, T> Iterator for Drain<'a, T> {
     type Item = T;
-    fn next(&mut self) -> Option<T> { self.iter.next() }
-    fn size_hint(&self) -> (usize, Option<usize>) { self.iter.size_hint() }
+    fn next(&mut self) -> Option<T> {
+        self.iter.next()
+    }
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.iter.size_hint()
+    }
 }
 
 impl<'a, T> DoubleEndedIterator for Drain<'a, T> {
-    fn next_back(&mut self) -> Option<T> { self.iter.next_back() }
+    fn next_back(&mut self) -> Option<T> {
+        self.iter.next_back()
+    }
 }
 
 impl<'a, T> Drop for Drain<'a, T> {
@@ -227,15 +223,20 @@ impl<T> ByteVec<T> {
     }
 }
 
-
 impl<T> Iterator for IntoIter<T> {
     type Item = T;
-    fn next(&mut self) -> Option<T> { self.iter.next() }
-    fn size_hint(&self) -> (usize, Option<usize>) { self.iter.size_hint() }
+    fn next(&mut self) -> Option<T> {
+        self.iter.next()
+    }
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.iter.size_hint()
+    }
 }
 
 impl<T> DoubleEndedIterator for IntoIter<T> {
-    fn next_back(&mut self) -> Option<T> { self.iter.next_back() }
+    fn next_back(&mut self) -> Option<T> {
+        self.iter.next_back()
+    }
 }
 
 impl<T> Drop for IntoIter<T> {
@@ -259,7 +260,7 @@ impl<T> RawValIter<T> {
                 slice.as_ptr()
             } else {
                 slice.as_ptr().add(slice.len())
-            }
+            },
         }
     }
 }
@@ -285,8 +286,8 @@ impl<T> Iterator for RawValIter<T> {
 
     fn size_hint(&self) -> (usize, Option<usize>) {
         let elem_size = mem::size_of::<T>();
-        let len = (self.end as usize - self.start as usize)
-                  / if elem_size == 0 { 1 } else { elem_size };
+        let len =
+            (self.end as usize - self.start as usize) / if elem_size == 0 { 1 } else { elem_size };
         (len, Some(len))
     }
 }
@@ -309,11 +310,10 @@ impl<T> DoubleEndedIterator for RawValIter<T> {
     }
 }
 
-
 unsafe impl<T: Send> Send for RawVec<T> {}
 unsafe impl<T: Sync> Sync for RawVec<T> {}
 
-//This will probably need the most amount of editing. 
+//This will probably need the most amount of editing.
 impl<T> RawVec<T> {
     fn new() -> Self {
         assert!(mem::size_of::<T>() != 0, "TODO: implement ZST support");
@@ -324,13 +324,13 @@ impl<T> RawVec<T> {
     }
 
     fn grow(&mut self) {
-        // This can't overflow because we ensure self.cap <= isize::MAX. 
-        //says the original code.. but that is not true for us as of right now. 
+        // This can't overflow because we ensure self.cap <= isize::MAX.
+        //says the original code.. but that is not true for us as of right now.
         let new_cap: u8 = if self.cap == 0 {
-            1 
+            1
         } else {
             2 * self.cap //into maybe not needed?
-        }; 
+        };
 
         // Layout::array checks that the number of bytes is <= usize::MAX,
         // but this is redundant since old_layout.size() <= isize::MAX,
@@ -339,18 +339,17 @@ impl<T> RawVec<T> {
 
         // Ensure that the new allocation doesn't exceed `isize::MAX` bytes.
         // we dont want isize::MAX per say.. not sure how to fix that. its too large
-        assert!(new_layout.size() <= u8::MAX as usize, "Allocation too large"); // test if u8::MAX works.. probs wont.
+        assert!(
+            new_layout.size() <= u8::MAX as usize,
+            "Allocation too large"
+        ); // test if u8::MAX works.. probs wont.
 
         let new_ptr = if self.cap == 0 {
-            unsafe { 
-                alloc::alloc(new_layout) 
-            }
+            unsafe { alloc::alloc(new_layout) }
         } else {
             let old_layout = Layout::array::<T>(self.cap.into()).unwrap();
             let old_ptr = self.ptr.as_ptr() as *mut u8;
-            unsafe { 
-                alloc::realloc(old_ptr, old_layout, new_layout.size()) 
-            }
+            unsafe { alloc::realloc(old_ptr, old_layout, new_layout.size()) }
         };
 
         // If allocation fails, `new_ptr` will be null, in which case we abort.
@@ -373,7 +372,6 @@ impl<T> Drop for RawVec<T> {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::ByteVec;
@@ -388,6 +386,5 @@ mod tests {
         vector.push(3);
         vector.push(4);
         println!("{:?}", vector);
-
     }
 }
