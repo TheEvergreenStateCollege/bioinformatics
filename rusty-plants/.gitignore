@@ -1,0 +1,6 @@
+target/
+*.exe
+*.out
+.env
+# Using prisma in other languages still seems to depend on node
+node_modules

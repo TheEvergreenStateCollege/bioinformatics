@@ -10,7 +10,11 @@ pub struct Match {
     pub errors: usize,
 }
 
-pub fn align_fragment(read: &Fragment, st: &SuffixTree, transcriptome: &Transcriptome) -> Vec<Match> {
+pub fn align_fragment(
+    read: &Fragment,
+    st: &SuffixTree,
+    transcriptome: &Transcriptome,
+) -> Vec<Match> {
     let trans_bases = transcriptome.get_bases();
     let read_bases = read.bases();
 
@@ -21,7 +25,9 @@ pub fn align_fragment(read: &Fragment, st: &SuffixTree, transcriptome: &Transcri
         let (start, _) = st.find_substring(&substring);
         // dbg!(start);
         if let Some(matching_transcriptome) =
-            &trans_bases.get(start as usize - i..start as usize - i + read_bases.len()) {//unsure of correctness
+            &trans_bases.get(start as usize - i..start as usize - i + read_bases.len())
+        {
+            //unsure of correctness
 
             // println!("{}  -  {}", read_bases, matching_transcriptome);
             let errors = edit_distance(read_bases, matching_transcriptome);
