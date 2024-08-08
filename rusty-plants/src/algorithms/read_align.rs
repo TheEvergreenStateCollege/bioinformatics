@@ -4,7 +4,7 @@ use crate::{
     file_io::fasta::Fragment,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Match {
     pub index: usize,
     pub errors: usize,
