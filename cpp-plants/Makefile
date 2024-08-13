@@ -17,7 +17,7 @@ DIR = ./$(CC)/
 #object files. (files between compile and link)	                            edit
 OBJ =$(DIR)$(EXE).o 
 #Compiler name (default should be gcc)
-CC =gcc
+CC =g++
 
 ############################################################################
 # Overide flags
