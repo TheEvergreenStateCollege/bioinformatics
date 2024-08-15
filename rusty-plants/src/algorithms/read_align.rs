@@ -4,7 +4,7 @@ use crate::{
     file_io::fasta::Fragment,
 };
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Match {
     pub index: usize,
     pub errors: usize,
@@ -40,6 +40,7 @@ pub fn align_fragment(
     }
     matches
 }
+
 
 // pub fn align_fragments(
 //     frags: &Vec<Fragment>,
