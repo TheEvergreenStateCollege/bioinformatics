@@ -1,28 +1,28 @@
-//loader is a container that is used in place of a vector to allow reuse of alocated memory. 
+//loadContainer is a container that is used in place of a vector to allow reuse of alocated memory. using a loader
+use num::Integer;
 
-//#[derive(Debug)]
-struct Loader<ID, DATA, LOAD, UNLOAD>
-where 
-    LOAD: FnMut(ID) -> DATA,
-    UNLOAD: FnMut(DATA),
-{
-    raw: Vec<DATA>,       //data container
-    index: Vec<ID>,       //stores index values. hash map?
-    load:  LOAD,          //function (closuer) for loading data in whatever way
-    unload: UNLOAD        //function (closuer) for unloading data, depending.
+pub trait Loader<ID, DATA> {
+    fn load(&mut self, _:ID) -> DATA;
+    fn unload(&mut self, _:DATA);
 }
 
-impl<ID, DATA, LOAD, UNLOAD> Loader<ID, DATA, LOAD, UNLOAD> 
-where 
-    LOAD: FnMut(ID) -> DATA,
-    UNLOAD: FnMut(DATA),
+//#[derive(Debug)]
+struct LoadContainer<ID: Integer + Default, DATA>
 {
-    pub fn new(load: LOAD, unload: UNLOAD) -> Loader<ID, DATA, LOAD, UNLOAD> {
+    raw: Vec<DATA>,                    //data container
+    index: Vec<ID>,                    //stores index values. hash map?
+    loader: Box<dyn Loader<ID, DATA>>, //The encapsulation of load and unload.
+    idcount: ID                        //running count of id values
+}
+
+impl<ID: Integer + Default, DATA> LoadContainer<ID, DATA> {
+    pub fn new(loader: impl Loader<ID, DATA> + 'static) -> LoadContainer<ID, DATA> 
+    {
         Self {
-            raw: Vec::new(),
-            index: Vec::new(),
-            load,
-            unload
+            raw: Vec::<DATA>::new(),    
+            index: Vec::<ID>::new(),
+            loader: Box::new(loader),
+            idcount: Default::default() // 0 is the result.
         }
     }
 
@@ -33,27 +33,34 @@ mod tests {
     use super::*;
     use std::collections::HashMap;
 
+    struct TestLoader {
+        map: HashMap<u32,i32>,
+        idcount: u32
+    }
+
+    impl TestLoader {
+        pub fn new() -> TestLoader {
+            Self {
+                map: HashMap::new(),
+                idcount: 0
+            }
+        }
+    }
+
+    impl Loader<u32, i32> for TestLoader{
+        fn load(&mut self, id: u32) -> i32 {
+            unimplemented!()
+        }
+
+        fn unload(&mut self, Data: i32) {
+
+        }
+    }
+
     #[test]
     fn init() {
-        let mut storeage: HashMap<u32, i32> = HashMap::new();
-        let mut idcounter = 0;
 
-        let load_test_closer = |ID: u32| -> i32 
-        {
-            match storeage.get(&ID)
-            {
-                Some(i) => *i, 
-                None => panic!("ID not found!"),
-            }
-        };
-
-        let unload_test_closer = |Data: i32 | 
-        {
-            idcounter = idcounter +1;
-            storeage.insert(idcounter, Data);
-        };
-
-        let loader = Loader::new(load_test_closer, unload_test_closer);
+        //let loader = LoadContainer::new(load_test_closer, unload_test_closer);
 
     }
 
