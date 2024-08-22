@@ -8,13 +8,12 @@ use smarty_plants::{
         transcriptome::Transcriptome,
     },
     file_io::fasta::*,
-    utils::mem_usage::{get_safe_memory_limit, process_chunk},
 };
 use std::{
     fs::{self, read_to_string},
     path::PathBuf,
 };
-
+use smarty_plants::utils::mem_usage::get_safe_memory_limit;
 
 
 #[derive(Parser)]
@@ -24,6 +23,24 @@ struct Cli {
     fragments_dir: PathBuf,
     /// The path to the genome file to align with
     genome_path: PathBuf,
+}
+
+fn process_chunk(transcriptome: &Transcriptome, st: &mut SuffixTree, start: usize, end: usize) {
+    for (i, c) in transcriptome
+        .get_bases()
+        .chars()
+        .map(|x| x as u8)
+        .skip(start)
+        .take(end - start)
+        .enumerate()
+    {
+        if (start + i) % 1_000_000 == 0 {
+            println!("Added up to transcriptome character {} to suffix tree", start + i);
+        }
+        st.extend(c);
+    }
+
+    println!("Finished processing chunk from {} to {}", start, end);
 }
 
 
@@ -44,15 +61,18 @@ fn main() {
     let total_bases = transcriptome.get_bases().chars().count();
     let num_chunks = (total_bases as f64 / max_chars as f64).ceil() as usize;
 
+    let mut st = SuffixTree::new();
+    let mut sys = sysinfo::System::new_all();
+    
+
     for chunk in 0..num_chunks {
-        let mut st = SuffixTree::new();
         let start = chunk * max_chars as usize;
         let end = ((chunk + 1) * max_chars as usize).min(total_bases);
 
         println!("Processing chunk from {} to {}", start, end);
-        process_chunk(&transcriptome, &mut st, start, end);
+        helper::process_chunk(&transcriptome, &mut st, start, end);
 
-        let sys = sysinfo::System::new_all();
+        sys.refresh_memory();
         println!("Memory usage after processing chunk {}: {} KB", chunk, sys.used_memory());
 
         println!("Aligning fragments");
@@ -68,9 +88,9 @@ fn main() {
         }
 
         drop(st);
-        std::thread::sleep(std::time::Duration::from_secs(10));
+        std::thread::sleep(std::time::Duration::from_secs(5));
 
-        let sys = sysinfo::System::new_all();
+        sys.refresh_memory();
         println!("Memory after dropping suffix tree: {} KB", sys.used_memory());
     }
 }

@@ -14,20 +14,3 @@ pub fn get_safe_memory_limit() -> u64 {
 
 }
 
-pub fn process_chunk(transcriptome: &Transcriptome, st: &mut SuffixTree, start: usize, end: usize) {
-    for (i, c) in transcriptome
-        .get_bases()
-        .chars()
-        .map(|x| x as u8)
-        .skip(start)
-        .take(end - start)
-        .enumerate()
-    {
-        if (start + i) % 1_000_000 == 0 {
-            println!("Added up to transcriptome character {} to suffix tree", start + i);
-        }
-        st.extend(c);
-    }
-
-    println!("Finished processing chunk from {} to {}", start, end);
-}
