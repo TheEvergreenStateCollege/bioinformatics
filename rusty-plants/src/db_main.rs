@@ -1,6 +1,6 @@
 use std::error::{Error};
 use sqlx::{Connection, ConnectOptions, Pool};
-use sqlx::postgres::{PgConnectOptions, Postgres, PgConnection, PgPool, PgSslMode};
+use sqlx::postgres::{PgConnectOptions, PgConnection, PgPool, PgQueryResult, PgSslMode, Postgres};
 use tokio::main;
 
 async fn connect() -> Result<Pool<Postgres>,Box<dyn Error>> {
@@ -37,6 +37,15 @@ async fn main() {
       stringStart INT,
       stringEnd   INT
 );";
-    let result = sqlx::query(create_table_query).execute(&pool).await.unwrap();
-    println!("{:?}", result);
+    // TODO How to get the following to match by Type in Rust,
+    // with extracted variables that we can use in each arm
+    let result = sqlx::query(create_table_query).execute(&pool).await;
+    match &result {
+        Error => {
+            println!("Error {:?}", result);
+        },
+        PgQueryResult => {
+            println!("Success {:?}", result);
+        },
+    }
 }
