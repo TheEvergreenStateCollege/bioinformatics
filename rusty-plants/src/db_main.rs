@@ -1,6 +1,7 @@
 use std::error::{Error};
 use sqlx::{Connection, ConnectOptions, Pool};
 use sqlx::postgres::{PgConnectOptions, Postgres, PgConnection, PgPool, PgSslMode};
+use tokio::main;
 
 async fn connect() -> Result<Pool<Postgres>,Box<dyn Error>> {
     // Manually-constructed options
@@ -27,5 +28,15 @@ async fn connect() -> Result<Pool<Postgres>,Box<dyn Error>> {
 
 #[tokio::main]
 async fn main() {
-    let pool = connect().await;
+    let pool = connect().await.unwrap();
+    let create_table_query = "
+    CREATE TABLE Edges (
+      id          INT PRIMARY KEY,
+      parentId    INT,
+      childId     INT,
+      stringStart INT,
+      stringEnd   INT
+);";
+    let result = sqlx::query(create_table_query).execute(&pool).await.unwrap();
+    println!("{:?}", result);
 }

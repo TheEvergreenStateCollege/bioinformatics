@@ -14,6 +14,7 @@ log = "0.4.22"
 rayon = "1.10.0"
 serde = { version = "1.0.198", features = ["derive"] }
 sqlx = { version = "0.8.0", features = [ "postgres" ] }
+tokio = { version = "1.39.2", features = ["full"] }
 
 [[bin]]
 name = "db_test"
