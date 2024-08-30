@@ -1,6 +1,10 @@
 # Smarty Plants
 interactive data structures and algorithms for genome analysis
 
+# Slides From Project Fair, Spring 2024
+
+[Dominic Severe's Slides](https://docs.google.com/presentation/d/14ZIPUVmaSvwBqqNX1rT2Jot1E7lo8r0lFpHOoKVAPtE/edit#slide=id.g2e34ceb0e26_0_7)
+
 ## Getting Started
 
 Clone this repository locally
