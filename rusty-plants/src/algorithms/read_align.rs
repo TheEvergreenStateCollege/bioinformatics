@@ -41,6 +41,7 @@ pub fn align_fragment(
     matches
 }
 
+
 // pub fn align_fragments(
 //     frags: &Vec<Fragment>,
 //     array: &FragmentArray,
