@@ -1,8 +1,31 @@
+# Smarty Plants
+interactive data structures and algorithms for genome analysis
+
 # Slides From Project Fair, Spring 2024
 
 [Dominic Severe's Slides](https://docs.google.com/presentation/d/14ZIPUVmaSvwBqqNX1rT2Jot1E7lo8r0lFpHOoKVAPtE/edit#slide=id.g2e34ceb0e26_0_7)
 
-# Contributor Guidelines
+## Getting Started
+
+Clone this repository locally
+
+```
+git clone git@github.com:TheEvergreenStateCollege/smarty-plants.git
+```
+
+Install Git Large File Support (LFS) for your environment
+
+https://git-lfs.com/
+
+Pull the large genome data for *Mimosa pudica* which is our initial test case.
+
+```
+git lfs pull
+```
+
+[Explore and become familiar with the experimental data in FASTA format by following the data tutorial.](docs/DataTutorial.md)
+
+## Contributor Guidelines
 
 The `main` branch is protected. Please develop on a branch and create pull requests following this [Git Workflow],
 and request a review from at least one other person before merging.

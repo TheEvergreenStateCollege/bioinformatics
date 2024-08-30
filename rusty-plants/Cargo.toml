@@ -12,3 +12,5 @@ directories = "5.0.1"
 human-panic = "2.0.0"
 rayon = "1.10.0"
 serde = { version = "1.0.198", features = ["derive"] }
+prisma-client-rust = { git = "https://github.com/Brendonovich/prisma-client-rust", tag = "0.6.11" }
+prisma-client-rust-cli = { git = "https://github.com/Brendonovich/prisma-client-rust", tag = "0.6.11" }

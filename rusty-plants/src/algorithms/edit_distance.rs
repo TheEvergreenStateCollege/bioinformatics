@@ -41,7 +41,7 @@ pub fn edit_distance(s1: &str, s2: &str) -> usize {
         }
     }
 
-    println!("{}", m);
+    // println!("{}", m);
 
     // The answer is stored in the bottom right cell
     // We know this won't panic, because the width and height of
