@@ -1,20 +1,24 @@
-//loadContainer is a container that is used in place of a vector to allow reuse of alocated memory. using a loader
+//Loader is a container that is used in place of a vector to allow reuse of alocated memory. using a loader
 use num::Integer;
 use std::fmt;
+use std::time;
 
+//impliment this for the container that stores the data. 
 pub trait Store<ID, DATA> {
     fn load(&mut self, _:ID) -> DATA;
     fn unload(&mut self, _:DATA);
 }
 
-//#[derive(Debug)]
 struct Loader<ID: Integer + Default, DATA>
 {
-    raw: Vec<DATA>,                    //data container
-    index: Vec<ID>,                    //stores index values. hash map?
+    lookup: Vec<(ID, )>,                   //stores index values. hash map?
+
+    raw: Vec<DATA>,                   //data container
     loader: Box<dyn Store<ID, DATA>>, //The encapsulation of load and unload.
-    idcount: ID                        //running count of id values
+    idcount: ID                       //running count of id values
 }
+
+struct DataWraper
 
 /* Functions used in suffixtrees for loadContainer to replace vec 
  *
@@ -23,7 +27,7 @@ struct Loader<ID: Integer + Default, DATA>
  *     * .push       adds thing. increments id
  *     * []          checks if thing, returns if found. grabs from store if not
  *     * .len()      returns idcount (I think)
- *     * .iter_mut()
+ *     * .iter_mut() 
  *     * .itter()
  *
  */
@@ -38,7 +42,6 @@ impl<ID: Integer + Default, DATA> Loader<ID, DATA> {
             idcount: Default::default() // 0 is the result.
         }
     }
-
 }
 
 //manual impl of trait Debug sense the debug macro can't create something for Box, so we print the pointer.
