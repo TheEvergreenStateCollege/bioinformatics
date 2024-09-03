@@ -330,4 +330,45 @@ mod tests {
             }
         }
     }
+
+    use crate::data_structures::suffix_tree::SuffixTree;
+    use crate::data_structures::suffix_tree::Node;
+
+    #[test]
+     // Root should have an alphabet size number of children.
+    pub fn st_check_for_property1() {
+       
+        let mut _st: SuffixTree = SuffixTree::new();
+        for c in "abcdeaccbe".to_string().chars() {
+            _st.extend(c as u8);
+        }
+        
+        let _st_buffer: &Vec<Node> = &_st.nodes;
+        let _st_alphabetlen = _st.alphabet.len();
+    
+        // Verify that root node is at index 1 in the node children
+        // Uses if let feature that extracts _st_root and makes it available in that branch's scope
+        if let Some(_st_root) = _st_buffer.get(1) { //Check if root exists.
+            
+            let _st_root_children_list = &_st_root.children;
+            let _st_root_children_length = &_st_root.children.len();
+            
+            // println!("Children of root: {:?}", _st_root_children_list);
+            assert_eq!(_st_alphabetlen, 5 as usize,
+                "String with abcde has alphabet size of 5.");
+            assert_eq!(*_st_root_children_length, _st_alphabetlen as usize,
+                "Number of root's children should be alphabet size.");
+    
+            if (_st_root_children_length == &_st_alphabetlen) { //The actual check.
+                println!("Property 1 Test: Root has an alphabet sized number of children and therefore passes property 1..");
+            } else {
+                println!("Error for property 1: Number of children for root != to size of alphabet... ")
+            }
+    
+        } else {
+            // We need to cover the None case here.
+            panic!("Root was not found.");
+        }
+    }
+       
 }
