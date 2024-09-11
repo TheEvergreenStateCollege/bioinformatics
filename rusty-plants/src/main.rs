@@ -24,7 +24,6 @@ struct Cli {
 }
 
 fn main() {
-    prisma_client_rust_cli::run();
 
     let read_dir = std::path::Path::new("../data/reads/");
     let files = read_directory_to_string(read_dir).expect("failed to read fragment files");
