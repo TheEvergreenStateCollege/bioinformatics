@@ -1,4 +1,4 @@
-# Smarty Plants
+# Bio-informatics Curriculum
 interactive data structures and algorithms for genome analysis
 
 # Slides From Project Fair, Spring 2024
@@ -10,7 +10,7 @@ interactive data structures and algorithms for genome analysis
 Clone this repository locally
 
 ```
-git clone git@github.com:TheEvergreenStateCollege/smarty-plants.git
+git clone git@github.com:TheEvergreenStateCollege/bioinformatics.git
 ```
 
 Install Git Large File Support (LFS) for your environment
